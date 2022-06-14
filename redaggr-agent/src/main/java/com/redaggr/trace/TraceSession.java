@@ -92,5 +92,6 @@ public class TraceSession {
     public void setTraceNodes(Stack<TraceNode> traceNodes) {
         this.traceNodes = traceNodes;
     }
+
 }
 

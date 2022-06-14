@@ -91,14 +91,13 @@ public class WebServletMethodOnceParameterVisitor extends ClassVisitor {
             boolean isStatic = ((methodAccess & ACC_STATIC) != 0);
             int slotIndex = isStatic ? 0 : 1;
 
-            printMessage("Method Enter: " + methodName + methodDesc + className);
-
             Type methodType = Type.getMethodType(methodDesc);
             Type[] argumentTypes = methodType.getArgumentTypes();
             printParam(slotIndex, argumentTypes);
             // 入参可能无法处理基本类型，只支持对象 TODO
             super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "printValueOnStackInParamByArr", "([Ljava/lang/Object;)V", false);
 
+            setClassInfo(className, methodName, methodDesc);
             // 其次，调用父类的方法实现
             super.visitCode();
         }
@@ -153,7 +152,6 @@ public class WebServletMethodOnceParameterVisitor extends ClassVisitor {
         public void visitInsn(int opcode) {
             // Servlet的返回应该打印的是入参的response
             if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-                printMessage("Method Exit: " + methodName + methodDesc + className);
                 if (opcode >= IRETURN && opcode <= DRETURN) {
                     Type methodType = Type.getMethodType(methodDesc);
                     Type returnType = methodType.getReturnType();
@@ -184,6 +182,9 @@ public class WebServletMethodOnceParameterVisitor extends ClassVisitor {
                 } else {
                     printMessage("    abnormal return");
                 }
+
+                // 在这边清除session
+                super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "cleanSession", "()V", false);
             }
 
             // 其次，调用父类的方法实现
@@ -197,6 +198,11 @@ public class WebServletMethodOnceParameterVisitor extends ClassVisitor {
 
         private void printValueOnStack(String descriptor) {
             super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "printValueOnStack4Return", descriptor, false);
+        }
+
+        private void setClassInfo(String className, String methodName, String methodDesc) {
+            super.visitLdcInsn(className.replaceAll("/", ".") + "#" + methodName + methodDesc);
+            super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "setClassInfo", "(Ljava/lang/String;)V", false);
         }
     }
 }

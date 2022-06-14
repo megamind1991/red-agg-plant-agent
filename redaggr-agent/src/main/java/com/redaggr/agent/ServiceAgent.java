@@ -1,7 +1,6 @@
 package com.redaggr.agent;
 
 import com.redaggr.handel.MethodOnceParameterVisitor;
-import com.redaggr.util.FileUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -46,9 +45,9 @@ public class ServiceAgent {
                     // (5) 生成byte[]
                     bytes2 = cw.toByteArray();
 
-                    System.out.println(className + "写入文件");
-                    // (6) 写入文件用于检查
-                    FileUtils.writeBytes("D:\\idea\\workspacegit\\itstack-demo-agent\\redaggr-agent\\target\\classes\\com\\redaggr\\delete\\S.class", bytes2);
+//                    System.out.println(className + "写入文件");
+//                    // (6) 写入文件用于检查
+//                    FileUtils.writeBytes("D:\\idea\\workspacegit\\itstack-demo-agent\\redaggr-agent\\target\\classes\\com\\redaggr\\delete\\S.class", bytes2);
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.out.println("异常" + e.getMessage());

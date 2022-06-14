@@ -6,6 +6,7 @@ import com.redaggr.logger.LoggerFactory;
 import com.redaggr.servletAgent.ServletResponseProxy;
 import com.redaggr.trace.TraceContext;
 import com.redaggr.trace.TraceNode;
+import com.redaggr.trace.TraceSession;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -139,7 +140,7 @@ public class ParameterUtils {
                 }
             }
             // 输出入参
-            logger.info(node.toString());
+//            logger.info(node.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -196,7 +197,6 @@ public class ParameterUtils {
             node.setInParam(getResponseValue(null, response));
             node.setEndTime(System.currentTimeMillis());
         } else {
-            node.setServiceName(value.getClass().toString());
             node.setInParam(JSONObject.toJSONString(value));
         }
     }
@@ -230,7 +230,6 @@ public class ParameterUtils {
             ServletResponseProxy response = (ServletResponseProxy) value;
             node.setOutParam(getResponseValue(null, response));
         } else {
-            node.setServiceName(value.getClass().toString());
             node.setOutParam(JSONObject.toJSONString(value));
         }
 
@@ -273,8 +272,28 @@ public class ParameterUtils {
         }
     }
 
+    @Deprecated
     public static void printText(String str) {
         System.out.println(str);
+    }
+
+    public static void cleanSession() {
+        try {
+            TraceContext.TRACE_SESSION_THREAD_LOCAL.remove();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void setClassInfo(String str) {
+        try {
+            TraceSession currentSession = TraceContext.getInstance().getCurrentSession();
+            if (currentSession.getTraceNodes().size() > 0) {
+                currentSession.getTraceNodes().peek().setServiceName(str);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void output(PrintStream printStream, int val) {
@@ -290,7 +309,6 @@ public class ParameterUtils {
         node.setAddressIp(NetUtils.getLocalHost());
         node.setFromIp(HttpUtils.getIp(request));
         node.setServicePath(request.getRequestURL().toString());
-        node.setServiceName(request.getRequestURI());
         node.setInParam(JSONObject.toJSONString(buildRequestParam(request)));
         return node;
     }
