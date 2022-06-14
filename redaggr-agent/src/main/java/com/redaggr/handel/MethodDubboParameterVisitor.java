@@ -37,7 +37,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
  * @taskId <br>
  * @return : null
  */
-public class MethodOnceParameterVisitor extends ClassVisitor {
+public class MethodDubboParameterVisitor extends ClassVisitor {
 
     private final String className;
 
@@ -46,7 +46,7 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
      */
     public Boolean isMeet = true;
 
-    public MethodOnceParameterVisitor(int api, ClassVisitor classVisitor, String className) {
+    public MethodDubboParameterVisitor(int api, ClassVisitor classVisitor, String className) {
         super(api, classVisitor);
         this.className = className;
     }
@@ -71,22 +71,25 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
         if (mv != null && !name.equals("<init>")) {
             boolean isAbstractMethod = (access & ACC_ABSTRACT) != 0;
             boolean isNativeMethod = (access & ACC_NATIVE) != 0;
-            boolean isPublicMethod = (access & ACC_PUBLIC) != 0;
-            if (!isAbstractMethod && !isNativeMethod && isPublicMethod) {
-                // 不是构造方法,不是抽象方法,不是原生方法的时候,是public 添加参数打印
-                mv = new MethodOnceParameterAdapter(api, mv, access, name, descriptor, className);
+            if (!isAbstractMethod
+                    && !isNativeMethod
+                    && ("invoke(Lcom/alibaba/dubbo/rpc/Invocation;)Lcom/alibaba/dubbo/rpc/Result;".equals(name + descriptor)
+                    ||  "invoke(Lorg/apache/dubbo/rpc/Invocation;)Lorg/apache/dubbo/rpc/Result;".equals(name + descriptor))) {
+
+                // 不是构造方法,不是抽象方法,不是原生方法的时候 添加参数打印
+                mv = new MethodDubboParameterAdapter(api, mv, access, name, descriptor, className);
             }
         }
         return mv;
     }
 
-    private static class MethodOnceParameterAdapter extends MethodVisitor {
+    private static class MethodDubboParameterAdapter extends MethodVisitor {
         private final int methodAccess;
         private final String methodName;
         private final String methodDesc;
         private final String className;
 
-        public MethodOnceParameterAdapter(int api, MethodVisitor mv, int methodAccess, String methodName, String methodDesc, String className) {
+        public MethodDubboParameterAdapter(int api, MethodVisitor mv, int methodAccess, String methodName, String methodDesc, String className) {
             super(api, mv);
             this.methodAccess = methodAccess;
             this.methodName = methodName;
@@ -100,8 +103,6 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
             boolean isStatic = ((methodAccess & ACC_STATIC) != 0);
             int slotIndex = isStatic ? 0 : 1;
 
-            printMessage("Method Enter: " + methodName + methodDesc);
-
             Type methodType = Type.getMethodType(methodDesc);
             Type[] argumentTypes = methodType.getArgumentTypes();
             printParam(slotIndex, argumentTypes);
@@ -109,8 +110,8 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
             // 入参可能无法处理基本类型，只支持对象 TODO
             super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "printValueOnStackInParamByArr", "([Ljava/lang/Object;)V", false);
 
-            // 设置当前classInfo
-            setClassInfo(className, methodName, methodDesc);
+//            // 设置当前classInfo invoke的时候可以取得
+//            setClassInfo(className, methodName, methodDesc);
 
             // 其次，调用父类的方法实现
             super.visitCode();
@@ -166,7 +167,6 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
         public void visitInsn(int opcode) {
             // 首先，处理自己的代码逻辑
             if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-                printMessage("Method Exit: " + methodName + methodDesc);
                 if (opcode >= IRETURN && opcode <= DRETURN) {
                     Type methodType = Type.getMethodType(methodDesc);
                     Type returnType = methodType.getReturnType();
@@ -185,8 +185,8 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
                     super.visitInsn(DUP);
                     printValueOnStack("(Ljava/lang/Object;)V");
                 } else if (opcode == RETURN) {
-                    super.visitLdcInsn("void");
-                    printValueOnStack("(Ljava/lang/Object;)V");
+                    printMessage(className + methodName + methodDesc);
+                    printMessage("    return void");
                 } else {
                     printMessage(className + methodName + methodDesc);
                     printMessage("    abnormal return");

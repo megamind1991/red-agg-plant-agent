@@ -8,6 +8,7 @@ public class Agent {
             System.out.println("agent start");
             WebServletAgent.premain(args, instrumentation);
             ServiceAgent.premain(args, instrumentation);
+            DubboConsumerAgent.premain(args, instrumentation);
         } catch (Exception e) {
             e.printStackTrace();
         }

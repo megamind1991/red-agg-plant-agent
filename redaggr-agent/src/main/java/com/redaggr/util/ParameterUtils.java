@@ -39,30 +39,37 @@ public class ParameterUtils {
     public static void printValueOnStack(boolean value) {
         System.out.println("    " + value);
     }
+
     @Deprecated
     public static void printValueOnStack(byte value) {
         System.out.println("    " + value);
     }
+
     @Deprecated
     public static void printValueOnStack(char value) {
         System.out.println("    " + value);
     }
+
     @Deprecated
     public static void printValueOnStack(short value) {
         System.out.println("    " + value);
     }
+
     @Deprecated
     public static void printValueOnStack(int value) {
         System.out.println("    " + value);
     }
+
     @Deprecated
     public static void printValueOnStack(float value) {
         System.out.println("    " + value);
     }
+
     @Deprecated
     public static void printValueOnStack(long value) {
         System.out.println("    " + value);
     }
+
     @Deprecated
     public static void printValueOnStack(double value) {
         System.out.println("    " + value);
@@ -196,6 +203,17 @@ public class ParameterUtils {
             ServletResponseProxy response = (ServletResponseProxy) value;
             node.setInParam(getResponseValue(null, response));
             node.setEndTime(System.currentTimeMillis());
+        } else if (value instanceof com.alibaba.dubbo.rpc.RpcInvocation) {
+            com.alibaba.dubbo.rpc.RpcInvocation request = (com.alibaba.dubbo.rpc.RpcInvocation) value;
+            // TODO 获取dubbo的url
+            node.setServiceName("dubbo" + "#" + request.getMethodName());
+            node.setInParam(JSONObject.toJSONString(request.getArguments()));
+            node.setEndTime(System.currentTimeMillis());
+        } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
+            org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
+            node.setServiceName("dubbo" + "#" + request.getMethodName());
+            node.setInParam(JSONObject.toJSONString(request.getArguments()));
+            node.setEndTime(System.currentTimeMillis());
         } else {
             node.setInParam(JSONObject.toJSONString(value));
         }
@@ -229,6 +247,16 @@ public class ParameterUtils {
             // 后缀匹配资源文件不打印请求信息
             ServletResponseProxy response = (ServletResponseProxy) value;
             node.setOutParam(getResponseValue(null, response));
+        } else if (value instanceof org.apache.dubbo.rpc.Result) {
+            // web servlet 出参打印
+            // 后缀匹配资源文件不打印请求信息
+            org.apache.dubbo.rpc.Result response = (org.apache.dubbo.rpc.Result) value;
+            node.setOutParam(JSONObject.toJSONString(response.getValue()));
+        } else if (value instanceof com.alibaba.dubbo.rpc.Result) {
+            // web servlet 出参打印
+            // 后缀匹配资源文件不打印请求信息
+            com.alibaba.dubbo.rpc.Result response = (com.alibaba.dubbo.rpc.Result) value;
+            node.setOutParam(JSONObject.toJSONString(response.getValue()));
         } else {
             node.setOutParam(JSONObject.toJSONString(value));
         }
@@ -258,8 +286,7 @@ public class ParameterUtils {
             }
             // 输出请求入参
             logger.info("HttpServletRequest    " + handlerDoDispatchMethod(request, null));
-        }
-        else if (value instanceof ServletResponseProxy) {
+        } else if (value instanceof ServletResponseProxy) {
             // web servlet 出参打印
             // 后缀匹配资源文件不打印请求信息
             ServletResponseProxy response = (ServletResponseProxy) value;
