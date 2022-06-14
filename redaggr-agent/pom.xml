@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>itstack-demo-agent</artifactId>
+        <groupId>org.itatack.demo</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>redaggr-agent</artifactId>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <asm.version>9.0</asm.version>
+    </properties>
+
+    <dependencies>
+        <!--        WebServlet埋点使用-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+<!--            <scope>provided</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Project-name>${project.name}</Project-name>
+                            <Project-version>${project.version}</Project-version>
+                            <Premain-Class>com.redaggr.agent.Agent</Premain-Class>
+<!--                            agent 所依赖的jar路径。。多个用空格分割-->
+<!--                            <Boot-Class-Path>D:\maven\m2\org\ow2\asm\asm-analysis\9.0\asm-analysis-9.0.jar</Boot-Class-Path>-->
+<!--                            是否重新定义-->
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+<!--                            是否重新载入-->
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
+                    </archive>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+<!--            <plugin>-->
+<!--                <artifactId>maven-shade-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>shade</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <artifactSet>-->
+<!--                        <includes>-->
+<!--                            <include>org.ow2.asm:asm</include>-->
+<!--                            <include>org.ow2.asm:asm-analysis</include>-->
+<!--                            <include>org.ow2.asm:asm-commons</include>-->
+<!--                            <include>org.ow2.asm:asm-tree</include>-->
+<!--                            <include>org.ow2.asm:asm-util</include>-->
+<!--                        </includes>-->
+<!--                    </artifactSet>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+        </plugins>
+    </build>
+</project>

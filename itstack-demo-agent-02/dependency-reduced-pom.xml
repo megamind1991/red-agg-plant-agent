@@ -92,6 +92,12 @@
       <artifactId>junit</artifactId>
       <version>4.9</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.alibaba</groupId>
@@ -109,4 +115,3 @@
     <updateReleaseInfo>true</updateReleaseInfo>
   </properties>
 </project>
-
