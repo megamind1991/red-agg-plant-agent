@@ -99,49 +99,73 @@ public class ParameterUtils {
         printValueOnStack4Return("" + value);
     }
 
+    public static void printValueOnStack4Return(Object value) {
+        try {
+            // 从node栈中获取当前node
+            Stack<TraceNode> traceNodes = TraceContext.getInstance().getCurrentSession().getTraceNodes();
+            TraceNode node = traceNodes.pop();
+            node.setEndTime(System.currentTimeMillis());
+            // 把上一次执行的node spanId 重新赋值给session
+            TraceContext.getInstance().getCurrentSession().setSpanId(traceNodes.size() > 0 ? traceNodes.peek().getSpanId() : "0");
+
+            // 打印设置返回值
+            TraceNode traceNode = printValueOnStackOutParamV2(value, node);
+            logger.info(traceNode == null ? null : traceNode.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void printValueOnStackInParamByArr(Object... params) {
-        // 打印入参的时候创建node
-        TraceNode node = new TraceNode();
-        node.setBeginTime(System.currentTimeMillis());
-        node.setTraceId(TraceContext.getInstance().getCurrentSession().getTraceId());
-        // 如果堆栈中有值的话node的spanId为nextSpanId
-        String currentSpanId = TraceContext.getInstance().getCurrentSession().getTraceNodes().size() > 0 ?
-                TraceContext.getInstance().getCurrentSession().getNextSpanId() : TraceContext.getInstance().getCurrentSession().getCurrentSpanId();
-        node.setSpanId(currentSpanId);
-        // session的当前spanId也为这个值
-        TraceContext.getInstance().getCurrentSession().setSpanId(currentSpanId);
-        // 向堆栈中加入当前node TODO 这边需要检查是否达到栈中的约定最大堆栈深度
-        TraceContext.getInstance().getCurrentSession().getTraceNodes().push(node);
+        try {
+            // 打印入参的时候创建node
+            TraceNode node = new TraceNode();
+            node.setBeginTime(System.currentTimeMillis());
+            node.setTraceId(TraceContext.getInstance().getCurrentSession().getTraceId());
+            // 如果堆栈中有值的话node的spanId为nextSpanId
+            String currentSpanId = TraceContext.getInstance().getCurrentSession().getTraceNodes().size() > 0 ?
+                    TraceContext.getInstance().getCurrentSession().getNextSpanId() : TraceContext.getInstance().getCurrentSession().getCurrentSpanId();
+            node.setSpanId(currentSpanId);
+            // session的当前spanId也为这个值
+            TraceContext.getInstance().getCurrentSession().setSpanId(currentSpanId);
+            // 向堆栈中加入当前node TODO 这边需要检查是否达到栈中的约定最大堆栈深度
+            TraceContext.getInstance().getCurrentSession().getTraceNodes().push(node);
 
-        // 为node设置业务参数信息 下面的可能需要逻辑异步化 TODO
-        for (Object param : params) {
-            if (param != null) {
-                // 入参整合
-                printValueOnStackInParamV2(param, node);
+            // 为node设置业务参数信息 下面的可能需要逻辑异步化 TODO
+            for (Object param : params) {
+                if (param != null) {
+                    // 入参整合
+                    printValueOnStackInParamV2(param, node);
+                }
             }
+            // 输出入参
+            logger.info(node.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        // 输出入参
-        logger.info(node.toString());
     }
 
     public static void printValueOnStackOutParamByArr(Object... params) {
-        // 从node栈中获取当前node
-        Stack<TraceNode> traceNodes = TraceContext.getInstance().getCurrentSession().getTraceNodes();
-        TraceNode node = traceNodes.pop();
-        node.setEndTime(System.currentTimeMillis());
-        // 把上一次执行的node spanId 重新赋值给session
-        TraceContext.getInstance().getCurrentSession().setSpanId(traceNodes.size() > 0 ? traceNodes.peek().getSpanId() : "0");
+        try {
+            // 从node栈中获取当前node
+            Stack<TraceNode> traceNodes = TraceContext.getInstance().getCurrentSession().getTraceNodes();
+            TraceNode node = traceNodes.pop();
+            node.setEndTime(System.currentTimeMillis());
+            // 把上一次执行的node spanId 重新赋值给session
+            TraceContext.getInstance().getCurrentSession().setSpanId(traceNodes.size() > 0 ? traceNodes.peek().getSpanId() : "0");
 
-        // 设置node的返回参数 TODO 可能需要异步
-        for (Object param : params) {
-            if (param != null) {
-                // 入参整合
-                printValueOnStackOutParamV2(param, node);
+            // 设置node的返回参数 TODO 可能需要异步
+            for (Object param : params) {
+                if (param != null) {
+                    // 入参整合
+                    printValueOnStackOutParamV2(param, node);
+                }
             }
+            // 输出入参
+            logger.info(node.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        // 输出入参
-        logger.info(node.toString());
     }
 
     public static void printValueOnStackInParamV2(Object value, TraceNode node) {
@@ -247,20 +271,6 @@ public class ParameterUtils {
         } else {
             logger.info("    " + value.getClass() + ": " + value.toString());
         }
-    }
-
-
-    public static void printValueOnStack4Return(Object value) {
-        // 从node栈中获取当前node
-        Stack<TraceNode> traceNodes = TraceContext.getInstance().getCurrentSession().getTraceNodes();
-        TraceNode node = traceNodes.pop();
-        node.setEndTime(System.currentTimeMillis());
-        // 把上一次执行的node spanId 重新赋值给session
-        TraceContext.getInstance().getCurrentSession().setSpanId(traceNodes.peek().getSpanId());
-
-        // 打印设置返回值
-        TraceNode traceNode = printValueOnStackOutParamV2(value, node);
-        logger.info(traceNode == null ? null : traceNode.toString());
     }
 
     public static void printText(String str) {

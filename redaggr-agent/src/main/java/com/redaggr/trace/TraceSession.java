@@ -68,6 +68,8 @@ public class TraceSession {
 
     public String getNextSpanId() {
         countNumber++;
+        // 用request里面的parent？还是当前的spanId ？ TODO
+        // 问题是X.x.x的出现问题
         return spanId + "." + countNumber;
     }
 
