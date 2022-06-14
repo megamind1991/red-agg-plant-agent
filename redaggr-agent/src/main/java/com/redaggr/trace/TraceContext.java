@@ -17,7 +17,7 @@ public class TraceContext {
      * 1. 真实入口级别进行创建session 统一可以认为是没有携带上次session的情况下，进行创建
      * 2. 如果有上次的session信息携带, 如果为空的情况下，依赖上次session进行创建
      */
-    private static final ThreadLocal<TraceSession> TRACE_SESSION_THREAD_LOCAL = new ThreadLocal<>();
+    public static final ThreadLocal<TraceSession> TRACE_SESSION_THREAD_LOCAL = new ThreadLocal<>();
 
 
     public TraceContext() {
@@ -33,6 +33,25 @@ public class TraceContext {
         TraceSession traceSession = new TraceSession(this, traceRequest);
         TRACE_SESSION_THREAD_LOCAL.set(traceSession);
         return traceSession;
+    }
+
+    /**
+     * 跨服务调用的时候需要使用此方法
+     * @param traceRequest
+     * @return
+     */
+    public TraceSession createSessionByRequest(TraceRequest traceRequest) {
+        TraceSession traceSession = new TraceSession(this, traceRequest);
+        TRACE_SESSION_THREAD_LOCAL.set(traceSession);
+        return traceSession;
+    }
+
+    public TraceSession getCurrentSession() {
+        TraceSession currentSession = TRACE_SESSION_THREAD_LOCAL.get();
+        if (currentSession != null) {
+            return currentSession;
+        }
+        return createSession();
     }
 }
 

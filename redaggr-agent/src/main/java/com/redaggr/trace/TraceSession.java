@@ -1,6 +1,7 @@
 package com.redaggr.trace;
 
 import java.util.Map;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,12 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TraceSession {
 
     /**
-     * 入口trace信息
+     * 远程调用的时候，调用方传过来的trace request信息
      */
     private TraceRequest traceRequest;
 
     /**
-     * 当前一次追踪的spanId
+     * 当前node的spanId
      */
     private String spanId;
 
@@ -32,6 +33,10 @@ public class TraceSession {
      */
     private TraceContext traceContext;
 
+    /**
+     * 一个会话产生的trace栈 如果堆栈中超过1000个大小，则提示错误 ,清空堆栈
+     */
+    private Stack<TraceNode> traceNodes = new Stack<>();
 
     /**
      * 当前trace中span的计数器 X.X.X.X
@@ -61,14 +66,29 @@ public class TraceSession {
     }
 
 
-    public String getNextRpcId() {
+    public String getNextSpanId() {
         countNumber++;
-        spanId = traceRequest.getParentSpanId() + "." + countNumber;
-        return spanId;
+        return spanId + "." + countNumber;
+    }
+
+    public void setSpanId(String spanId) {
+        this.spanId = spanId;
+    }
+
+    public String getTraceId() {
+        return this.traceRequest.getTraceId();
     }
 
     public static String createTraceId() {
         return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    public Stack<TraceNode> getTraceNodes() {
+        return traceNodes;
+    }
+
+    public void setTraceNodes(Stack<TraceNode> traceNodes) {
+        this.traceNodes = traceNodes;
     }
 }
 

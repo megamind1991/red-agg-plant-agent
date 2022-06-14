@@ -17,7 +17,7 @@ public class TraceNode implements Serializable {
     /**
      * 调用链节点调用标识，表明执行顺序，与嵌套层次
      */
-    private String rpcId;
+    private String spanId;
 
     private String appId;
     private String appDetail;
@@ -61,11 +61,11 @@ public class TraceNode implements Serializable {
     /**
      * 输入参数
      */
-    private String inParam;
+    private String inParam = "";
     /**
      * 输出参数
      */
-    private String outParam;
+    private String outParam = "";
     /**
      * 异常信息
      */
@@ -87,12 +87,12 @@ public class TraceNode implements Serializable {
         this.traceId = traceId;
     }
 
-    public String getRpcId() {
-        return rpcId;
+    public String getSpanId() {
+        return spanId;
     }
 
-    public void setRpcId(String rpcId) {
-        this.rpcId = rpcId;
+    public void setSpanId(String spanId) {
+        this.spanId = spanId;
     }
 
     public String getAppId() {
@@ -188,7 +188,7 @@ public class TraceNode implements Serializable {
     }
 
     public void setInParam(String inParam) {
-        this.inParam = inParam;
+        this.inParam = "" + this.inParam + inParam;
     }
 
     public String getOutParam() {
@@ -196,7 +196,7 @@ public class TraceNode implements Serializable {
     }
 
     public void setOutParam(String outParam) {
-        this.outParam = outParam;
+        this.outParam = "" + this.outParam + outParam;
     }
 
     public String getErrorMessage() {
@@ -227,7 +227,7 @@ public class TraceNode implements Serializable {
     public String toString() {
         final StringBuilder sb = new StringBuilder("TraceNode{");
         sb.append("traceId='").append(traceId).append('\'');
-        sb.append(", rpcId='").append(rpcId).append('\'');
+        sb.append(", spanId='").append(spanId).append('\'');
         sb.append(", appId='").append(appId).append('\'');
         sb.append(", appDetail='").append(appDetail).append('\'');
         sb.append(", nodeType='").append(nodeType).append('\'');

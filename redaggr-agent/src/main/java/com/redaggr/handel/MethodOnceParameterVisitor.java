@@ -163,7 +163,7 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
         public void visitInsn(int opcode) {
             // 首先，处理自己的代码逻辑
             if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-                printMessage("Method Exit: " + methodName + methodDesc);
+                printMessage("Method Exit: " + methodName + methodDesc + className);
                 if (opcode >= IRETURN && opcode <= DRETURN) {
                     Type methodType = Type.getMethodType(methodDesc);
                     Type returnType = methodType.getReturnType();

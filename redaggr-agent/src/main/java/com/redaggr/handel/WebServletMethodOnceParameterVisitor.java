@@ -153,7 +153,7 @@ public class WebServletMethodOnceParameterVisitor extends ClassVisitor {
         public void visitInsn(int opcode) {
             // Servlet的返回应该打印的是入参的response
             if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-                printMessage("Method Exit: " + methodName + methodDesc);
+                printMessage("Method Exit: " + methodName + methodDesc + className);
                 if (opcode >= IRETURN && opcode <= DRETURN) {
                     Type methodType = Type.getMethodType(methodDesc);
                     Type returnType = methodType.getReturnType();

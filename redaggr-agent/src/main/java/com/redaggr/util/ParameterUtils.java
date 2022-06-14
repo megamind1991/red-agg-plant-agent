@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.redaggr.logger.Logger;
 import com.redaggr.logger.LoggerFactory;
 import com.redaggr.servletAgent.ServletResponseProxy;
+import com.redaggr.trace.TraceContext;
 import com.redaggr.trace.TraceNode;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Stack;
 
 /**
  * @author : 0006841 油面筋
@@ -32,34 +34,35 @@ public class ParameterUtils {
 
     private static final DateFormat fm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    @Deprecated
     public static void printValueOnStack(boolean value) {
         System.out.println("    " + value);
     }
-
+    @Deprecated
     public static void printValueOnStack(byte value) {
         System.out.println("    " + value);
     }
-
+    @Deprecated
     public static void printValueOnStack(char value) {
         System.out.println("    " + value);
     }
-
+    @Deprecated
     public static void printValueOnStack(short value) {
         System.out.println("    " + value);
     }
-
+    @Deprecated
     public static void printValueOnStack(int value) {
         System.out.println("    " + value);
     }
-
+    @Deprecated
     public static void printValueOnStack(float value) {
         System.out.println("    " + value);
     }
-
+    @Deprecated
     public static void printValueOnStack(long value) {
         System.out.println("    " + value);
     }
-
+    @Deprecated
     public static void printValueOnStack(double value) {
         System.out.println("    " + value);
     }
@@ -98,7 +101,20 @@ public class ParameterUtils {
 
 
     public static void printValueOnStackInParamByArr(Object... params) {
+        // 打印入参的时候创建node
         TraceNode node = new TraceNode();
+        node.setBeginTime(System.currentTimeMillis());
+        node.setTraceId(TraceContext.getInstance().getCurrentSession().getTraceId());
+        // 如果堆栈中有值的话node的spanId为nextSpanId
+        String currentSpanId = TraceContext.getInstance().getCurrentSession().getTraceNodes().size() > 0 ?
+                TraceContext.getInstance().getCurrentSession().getNextSpanId() : TraceContext.getInstance().getCurrentSession().getCurrentSpanId();
+        node.setSpanId(currentSpanId);
+        // session的当前spanId也为这个值
+        TraceContext.getInstance().getCurrentSession().setSpanId(currentSpanId);
+        // 向堆栈中加入当前node TODO 这边需要检查是否达到栈中的约定最大堆栈深度
+        TraceContext.getInstance().getCurrentSession().getTraceNodes().push(node);
+
+        // 为node设置业务参数信息 下面的可能需要逻辑异步化 TODO
         for (Object param : params) {
             if (param != null) {
                 // 入参整合
@@ -110,7 +126,14 @@ public class ParameterUtils {
     }
 
     public static void printValueOnStackOutParamByArr(Object... params) {
-        TraceNode node = new TraceNode();
+        // 从node栈中获取当前node
+        Stack<TraceNode> traceNodes = TraceContext.getInstance().getCurrentSession().getTraceNodes();
+        TraceNode node = traceNodes.pop();
+        node.setEndTime(System.currentTimeMillis());
+        // 把上一次执行的node spanId 重新赋值给session
+        TraceContext.getInstance().getCurrentSession().setSpanId(traceNodes.size() > 0 ? traceNodes.peek().getSpanId() : "0");
+
+        // 设置node的返回参数 TODO 可能需要异步
         for (Object param : params) {
             if (param != null) {
                 // 入参整合
@@ -155,9 +178,6 @@ public class ParameterUtils {
     }
 
     public static TraceNode printValueOnStackOutParamV2(Object value, TraceNode node) {
-        if (node == null) {
-            node = new TraceNode();
-        }
         if (value == null) {
             node.setOutParam(null);
         } else if (value instanceof String) {
@@ -185,7 +205,6 @@ public class ParameterUtils {
             // 后缀匹配资源文件不打印请求信息
             ServletResponseProxy response = (ServletResponseProxy) value;
             node.setOutParam(getResponseValue(null, response));
-            node.setEndTime(System.currentTimeMillis());
         } else {
             node.setServiceName(value.getClass().toString());
             node.setOutParam(JSONObject.toJSONString(value));
@@ -194,6 +213,7 @@ public class ParameterUtils {
         return node;
     }
 
+    @Deprecated
     public static void printValueOnStack(Object value) {
         if (value == null) {
             logger.info("    " + value);
@@ -231,7 +251,15 @@ public class ParameterUtils {
 
 
     public static void printValueOnStack4Return(Object value) {
-        TraceNode traceNode = printValueOnStackOutParamV2(value, null);
+        // 从node栈中获取当前node
+        Stack<TraceNode> traceNodes = TraceContext.getInstance().getCurrentSession().getTraceNodes();
+        TraceNode node = traceNodes.pop();
+        node.setEndTime(System.currentTimeMillis());
+        // 把上一次执行的node spanId 重新赋值给session
+        TraceContext.getInstance().getCurrentSession().setSpanId(traceNodes.peek().getSpanId());
+
+        // 打印设置返回值
+        TraceNode traceNode = printValueOnStackOutParamV2(value, node);
         logger.info(traceNode == null ? null : traceNode.toString());
     }
 
@@ -249,15 +277,11 @@ public class ParameterUtils {
             node = new TraceNode();
         }
         node.setNodeType("http");
-        node.setTraceId("session.getTraceId()");
-        node.setRpcId("session.getCurrentRpcId()");
-        node.setBeginTime(System.currentTimeMillis());
         node.setAddressIp(NetUtils.getLocalHost());
         node.setFromIp(HttpUtils.getIp(request));
         node.setServicePath(request.getRequestURL().toString());
         node.setServiceName(request.getRequestURI());
         node.setInParam(JSONObject.toJSONString(buildRequestParam(request)));
-        node.setResultState("succeed");
         return node;
     }
 
