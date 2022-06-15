@@ -11,6 +11,7 @@ import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_NATIVE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ATHROW;
@@ -26,6 +27,7 @@ import static org.objectweb.asm.Opcodes.ICONST_4;
 import static org.objectweb.asm.Opcodes.ICONST_5;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
 
@@ -110,8 +112,8 @@ public class MethodDubboParameterVisitor extends ClassVisitor {
             // 入参可能无法处理基本类型，只支持对象 TODO
             super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "printValueOnStackInParamByArr", "([Ljava/lang/Object;)V", false);
 
-//            // 设置当前classInfo invoke的时候可以取得
-//            setClassInfo(className, methodName, methodDesc);
+            // 执行完入参后再调用额外信息 这边顺序要注意
+            printDubboSpecialInfo(methodDesc);
 
             // 其次，调用父类的方法实现
             super.visitCode();
@@ -209,6 +211,18 @@ public class MethodDubboParameterVisitor extends ClassVisitor {
         private void setClassInfo(String className, String methodName, String methodDesc) {
             super.visitLdcInsn(className.replaceAll("/", ".") + "#" + methodName + methodDesc);
             super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "setClassInfo", "(Ljava/lang/String;)V", false);
+        }
+
+        private void printDubboSpecialInfo(String methodDesc) {
+            super.visitVarInsn(ALOAD, 0);
+            if (methodDesc.contains("alibaba")) {
+                super.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/dubbo/rpc/cluster/support/wrapper/MockClusterInvoker", "getUrl", "()Lcom/alibaba/dubbo/common/URL;", false);
+            } else if (methodDesc.contains("apache")) {
+                super.visitMethodInsn(INVOKEVIRTUAL, "org/apache/dubbo/rpc/cluster/support/wrapper/MockClusterInvoker", "getUrl", "()Lorg/apache/dubbo/common/URL;", false);
+            } else {
+                return;
+            }
+            super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "setDubboUrl", "(Ljava/lang/Object;)V", false);
         }
 
     }

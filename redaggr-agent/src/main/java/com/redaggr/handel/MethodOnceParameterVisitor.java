@@ -100,8 +100,6 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
             boolean isStatic = ((methodAccess & ACC_STATIC) != 0);
             int slotIndex = isStatic ? 0 : 1;
 
-            printMessage("Method Enter: " + methodName + methodDesc);
-
             Type methodType = Type.getMethodType(methodDesc);
             Type[] argumentTypes = methodType.getArgumentTypes();
             printParam(slotIndex, argumentTypes);
@@ -166,7 +164,6 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
         public void visitInsn(int opcode) {
             // 首先，处理自己的代码逻辑
             if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-                printMessage("Method Exit: " + methodName + methodDesc);
                 if (opcode >= IRETURN && opcode <= DRETURN) {
                     Type methodType = Type.getMethodType(methodDesc);
                     Type returnType = methodType.getReturnType();

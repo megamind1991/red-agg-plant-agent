@@ -80,7 +80,7 @@ import java.util.ResourceBundle;
  * @author  Various
  */
 
-public abstract class HttpServlet extends GenericServlet
+public abstract class HttpServletV2 extends GenericServlet
 {
     private static final String METHOD_DELETE = "DELETE";
     private static final String METHOD_HEAD = "HEAD";
@@ -104,7 +104,7 @@ public abstract class HttpServlet extends GenericServlet
      * 
      */
 
-    public HttpServlet() { }
+    public HttpServletV2() { }
     
 
     /**
@@ -430,12 +430,12 @@ public abstract class HttpServlet extends GenericServlet
     }
     
 
-    private Method[] getAllDeclaredMethods(Class<? extends HttpServlet> c) {
+    private Method[] getAllDeclaredMethods(Class<? extends HttpServletV2> c) {
 
         Class<?> clazz = c;
         Method[] allMethods = null;
 
-        while (!clazz.equals(HttpServlet.class)) {
+        while (!clazz.equals(HttpServletV2.class)) {
             Method[] thisMethods = clazz.getDeclaredMethods();
             if (allMethods != null && allMethods.length > 0) {
                 Method[] subClassMethods = allMethods;

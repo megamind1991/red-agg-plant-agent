@@ -107,6 +107,27 @@ public class ParameterUtils {
         printValueOnStack4Return("" + value);
     }
 
+    public static void setDubboUrl(Object value) {
+        // TODO 在这边把dubbo中attachement中带入traceRequest 在生产者那边可以使用
+        try {
+            TraceSession currentSession = TraceContext.getInstance().getCurrentSession();
+            if (currentSession.getTraceNodes().size() <= 0) {
+                return;
+            }
+            TraceNode currentNode = currentSession.getTraceNodes().peek();
+            currentNode.setNodeType("dubbo");
+            if (value instanceof com.alibaba.dubbo.common.URL) {
+                com.alibaba.dubbo.common.URL url = (com.alibaba.dubbo.common.URL) value;
+                currentNode.setServicePath(url.getServiceKey());
+            } else if (value instanceof org.apache.dubbo.common.URL) {
+                org.apache.dubbo.common.URL url = (org.apache.dubbo.common.URL) value;
+                currentNode.setServicePath(url.getServiceKey());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void printValueOnStack4Return(Object value) {
         try {
             // 从node栈中获取当前node
@@ -205,13 +226,13 @@ public class ParameterUtils {
             node.setEndTime(System.currentTimeMillis());
         } else if (value instanceof com.alibaba.dubbo.rpc.RpcInvocation) {
             com.alibaba.dubbo.rpc.RpcInvocation request = (com.alibaba.dubbo.rpc.RpcInvocation) value;
-            // TODO 获取dubbo的url
-            node.setServiceName("dubbo" + "#" + request.getMethodName());
+            node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
+
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
             node.setEndTime(System.currentTimeMillis());
         } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
             org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
-            node.setServiceName("dubbo" + "#" + request.getMethodName());
+            node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
             node.setEndTime(System.currentTimeMillis());
         } else {
