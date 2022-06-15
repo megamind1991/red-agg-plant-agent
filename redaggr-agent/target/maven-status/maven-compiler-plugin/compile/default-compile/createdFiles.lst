@@ -12,7 +12,9 @@ com\redaggr\util\HttpUtils.class
 com\redaggr\logger\LoggerAdapter.class
 com\redaggr\handel\ClassTransformer.class
 com\redaggr\util\FileUtils.class
+com\redaggr\handel\MethodDubboProviderParameterVisitor.class
 com\redaggr\trace\TraceSession.class
+com\redaggr\handel\MethodDubboProviderParameterVisitor$MethodDubboProviderParameterAdapter.class
 com\redaggr\agent\WebServletAgent.class
 com\redaggr\delete\NoBodyOutputStream.class
 com\redaggr\logger\log4j2\Log4j2Logger.class

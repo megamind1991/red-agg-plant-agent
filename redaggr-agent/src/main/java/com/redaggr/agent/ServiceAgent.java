@@ -14,7 +14,7 @@ public class ServiceAgent {
     public static void premain(String args, Instrumentation instrumentation) {
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // 监听符合规则的service类
-            // .*shihang|shlf.*Service.*
+            // .*shihang|shlf.*Service.* TODO 通过入参确定
             if (Pattern.matches(".*(shihang|shlf).*promotions.*ServiceImpl", className.replace("/", "."))) {
                 System.out.println("匹配到" + className);
                 byte[] bytes2 = null;

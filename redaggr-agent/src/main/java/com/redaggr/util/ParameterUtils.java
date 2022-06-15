@@ -149,6 +149,7 @@ public class ParameterUtils {
         try {
             // 打印入参的时候创建node
             TraceNode node = new TraceNode();
+            node.setThreadId(Thread.currentThread().getName());
             node.setBeginTime(System.currentTimeMillis());
             node.setTraceId(TraceContext.getInstance().getCurrentSession().getTraceId());
             // 如果堆栈中有值的话node的spanId为nextSpanId

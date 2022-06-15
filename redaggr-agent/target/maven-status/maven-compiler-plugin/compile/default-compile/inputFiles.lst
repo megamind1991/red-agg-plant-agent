@@ -35,6 +35,7 @@ D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\logger\support\FailsafeLogger.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\util\IOUtils.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\agent\RedisAgent.java
+D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\handel\MethodDubboProviderParameterVisitor.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\trace\TraceRequest.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\util\NetUtils.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\agent\DubboConsumerAgent.java

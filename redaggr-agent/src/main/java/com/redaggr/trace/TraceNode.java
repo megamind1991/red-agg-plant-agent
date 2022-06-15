@@ -79,6 +79,11 @@ public class TraceNode implements Serializable {
      */
     private String stackNodes;
 
+    /**
+     * 线程id
+     */
+    private String threadId;
+
     public String getTraceId() {
         return traceId;
     }
@@ -223,6 +228,14 @@ public class TraceNode implements Serializable {
         this.stackNodes = stackNodes;
     }
 
+    public String getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TraceNode{");
@@ -244,6 +257,7 @@ public class TraceNode implements Serializable {
         sb.append(", errorMessage='").append(errorMessage).append('\'');
         sb.append(", errorStack='").append(errorStack).append('\'');
         sb.append(", stackNodes='").append(stackNodes).append('\'');
+        sb.append(", threadId='").append(threadId).append('\'');
         sb.append('}');
         return sb.toString();
     }
