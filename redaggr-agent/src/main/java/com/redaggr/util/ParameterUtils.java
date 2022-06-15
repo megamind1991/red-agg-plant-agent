@@ -224,18 +224,18 @@ public class ParameterUtils {
             // 后缀匹配资源文件不打印请求信息
             ServletResponseProxy response = (ServletResponseProxy) value;
             node.setInParam(getResponseValue(null, response));
-            node.setEndTime(System.currentTimeMillis());
         } else if (value instanceof com.alibaba.dubbo.rpc.RpcInvocation) {
             com.alibaba.dubbo.rpc.RpcInvocation request = (com.alibaba.dubbo.rpc.RpcInvocation) value;
             node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
-
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
-            node.setEndTime(System.currentTimeMillis());
         } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
             org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
             node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
-            node.setEndTime(System.currentTimeMillis());
+        } else if (value instanceof java.lang.reflect.Method) {
+            java.lang.reflect.Method method = (java.lang.reflect.Method) value;
+            node.setServiceName(method.getDeclaringClass().getName() + "#" + method.getName());
+//            node.setInParam(); TODO xxl的入参是从xxl工具栏中获取的
         } else {
             node.setInParam(JSONObject.toJSONString(value));
         }
@@ -262,7 +262,6 @@ public class ParameterUtils {
             }
             // 输出请求入参
             handlerDoDispatchMethod(request, node);
-            // TODO
             node.setOutParam(JSONObject.toJSONString(buildRequestParam(request)));
         } else if (value instanceof ServletResponseProxy) {
             // web servlet 出参打印

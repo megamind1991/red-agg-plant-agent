@@ -71,7 +71,6 @@ public class MethodDubboProviderParameterVisitor extends ClassVisitor {
         if (mv != null && !name.equals("<init>")) {
             boolean isAbstractMethod = (access & ACC_ABSTRACT) != 0;
             boolean isNativeMethod = (access & ACC_NATIVE) != 0;
-            System.out.println(name + descriptor);
             if (!isAbstractMethod
                     && !isNativeMethod
                     && ("invoke(Lorg/apache/dubbo/rpc/Invoker;Lorg/apache/dubbo/rpc/Invocation;)Lorg/apache/dubbo/rpc/Result;".equals(name + descriptor)

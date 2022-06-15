@@ -10,6 +10,7 @@ public class Agent {
             ServiceAgent.premain(args, instrumentation);
             DubboConsumerAgent.premain(args, instrumentation);
             DubboProviderAgent.premain(args, instrumentation);
+            XxlJobAgent.premain(args, instrumentation);
         } catch (Exception e) {
             e.printStackTrace();
         }
