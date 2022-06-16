@@ -193,7 +193,7 @@ public class TraceNode implements Serializable {
     }
 
     public void setInParam(String inParam) {
-        this.inParam = "" + this.inParam + inParam;
+        this.inParam = "" + this.inParam + " " + inParam;
     }
 
     public String getOutParam() {
@@ -201,7 +201,7 @@ public class TraceNode implements Serializable {
     }
 
     public void setOutParam(String outParam) {
-        this.outParam = "" + this.outParam + outParam;
+        this.outParam = "" + this.outParam + " "+ outParam;
     }
 
     public String getErrorMessage() {

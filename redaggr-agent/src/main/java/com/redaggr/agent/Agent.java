@@ -11,6 +11,14 @@ public class Agent {
             DubboConsumerAgent.premain(args, instrumentation);
             DubboProviderAgent.premain(args, instrumentation);
             XxlJobAgent.premain(args, instrumentation);
+            RocketMqSenderAgent.premain(args, instrumentation);
+//            RocketMqListenerAgentAgent
+//            JmsAgent
+//            RedisAgent
+//            HttpAgent
+//            SqlAgent
+//            ScheduledAgent
+//            AnnotaionAgent
         } catch (Exception e) {
             e.printStackTrace();
         }

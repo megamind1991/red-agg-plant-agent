@@ -42,6 +42,7 @@ com\redaggr\handel\MethodOnceParameterVisitor.class
 com\redaggr\trace\TraceContext.class
 com\redaggr\delete\S.class
 com\redaggr\handel\ClassAddTimerNode$ClassAddTimerTransformer.class
+com\redaggr\handel\RabbitSenderParameterVisitor.class
 com\redaggr\agent\RocketMqListenerAgent.class
 com\redaggr\handel\WebServletMethodOnceParameterVisitor.class
 com\redaggr\util\IOUtils.class
@@ -54,6 +55,7 @@ com\redaggr\handel\WebServletMethodOnceParameterVisitor$WebServletMethodOncePara
 com\redaggr\handel\WebServletMethodParameterVisitor.class
 com\redaggr\agent\RocketMqSenderAgent.class
 com\redaggr\agent\SqlAgent.class
+com\redaggr\handel\RabbitSenderParameterVisitor$RabbitSenderParameterAdapter.class
 com\redaggr\agent\ScheduledAgent.class
 com\redaggr\agent\JmsAgent.class
 com\redaggr\handel\MethodXxlJobParameterVisitor.class

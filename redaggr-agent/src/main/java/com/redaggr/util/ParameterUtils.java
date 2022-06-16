@@ -1,6 +1,7 @@
 package com.redaggr.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.rabbitmq.client.AMQP;
 import com.redaggr.logger.Logger;
 import com.redaggr.logger.LoggerFactory;
 import com.redaggr.servletAgent.ServletResponseProxy;
@@ -15,6 +16,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -207,6 +209,8 @@ public class ParameterUtils {
             node.setInParam(fm.format(value));
         } else if (value instanceof char[]) {
             node.setInParam(Arrays.toString((char[]) value));
+        } else if (value instanceof byte[]) {
+            node.setInParam(new String((byte[]) value, StandardCharsets.UTF_8));
         } else if (value instanceof HttpServletRequest) {
             // web servlet 入参打印
             // 后缀匹配资源文件不打印请求信息
@@ -226,16 +230,41 @@ public class ParameterUtils {
             node.setInParam(getResponseValue(null, response));
         } else if (value instanceof com.alibaba.dubbo.rpc.RpcInvocation) {
             com.alibaba.dubbo.rpc.RpcInvocation request = (com.alibaba.dubbo.rpc.RpcInvocation) value;
+            // TODO 需要设置attachment至消费者
             node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
         } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
+            // TODO 需要设置attachment至消费者
             org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
             node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
         } else if (value instanceof java.lang.reflect.Method) {
+
             java.lang.reflect.Method method = (java.lang.reflect.Method) value;
             node.setServiceName(method.getDeclaringClass().getName() + "#" + method.getName());
 //            node.setInParam(); TODO xxl的入参是从xxl工具栏中获取的
+        } else if (value instanceof AMQP.BasicProperties) {
+            AMQP.BasicProperties prop = (AMQP.BasicProperties) value;
+            // 需要设置prop中的head值 带给listener TODO
+            prop = prop.builder()
+                    .contentType(prop.getContentType())
+                    .contentEncoding(prop.getContentEncoding())
+                    .headers(prop.getHeaders())
+                    .deliveryMode(prop.getDeliveryMode())
+                    .priority(prop.getPriority())
+                    .correlationId(node.getSpanId())
+                    .replyTo(prop.getReplyTo())
+                    .expiration(prop.getExpiration())
+                    .messageId(node.getTraceId())
+                    .timestamp(prop.getTimestamp())
+                    .type(prop.getType())
+                    .userId(prop.getUserId())
+                    .appId(prop.getAppId())
+                    .clusterId(prop.getClusterId())
+                    .build();
+            // RabbitMq无service name
+//            node.setServiceName(method.getDeclaringClass().getName() + "#" + method.getName());
+            node.setInParam(JSONObject.toJSONString(prop));
         } else {
             node.setInParam(JSONObject.toJSONString(value));
         }
