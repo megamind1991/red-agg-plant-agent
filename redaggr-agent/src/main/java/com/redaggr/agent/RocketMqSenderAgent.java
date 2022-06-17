@@ -14,7 +14,10 @@ public class RocketMqSenderAgent {
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // com.rabbitmq.client.impl.ChannelN
             // basicPublish(java.lang.String, java.lang.String, boolean, boolean, com.rabbitmq.client.AMQP.BasicProperties, byte[])
-            if ("com.rabbitmq.client.impl.ChannelN".replaceAll("\\.", "/").equals(className)) {
+
+            // org.springframework.amqp.rabbit.core.RabbitTemplate
+            // doSend
+            if ("org.springframework.amqp.rabbit.core.RabbitTemplate".replaceAll("\\.", "/").equals(className)) {
                 System.out.println("匹配到" + className);
                 byte[] bytes2 = null;
                 try {

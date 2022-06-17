@@ -43,7 +43,9 @@ com\redaggr\trace\TraceContext.class
 com\redaggr\delete\S.class
 com\redaggr\handel\ClassAddTimerNode$ClassAddTimerTransformer.class
 com\redaggr\handel\RabbitSenderParameterVisitor.class
+com\redaggr\handel\RabbitListenerParameterVisitor$RabbitListenerParameterAdapter.class
 com\redaggr\agent\RocketMqListenerAgent.class
+com\redaggr\handel\RabbitListenerParameterVisitor.class
 com\redaggr\handel\WebServletMethodOnceParameterVisitor.class
 com\redaggr\util\IOUtils.class
 com\redaggr\delete\MockClusterInvokerV2.class

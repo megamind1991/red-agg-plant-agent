@@ -70,7 +70,7 @@ public class TraceSession {
         countNumber++;
         // 用request里面的parent？还是当前的spanId ？ TODO
         // 问题是X.x.x的出现问题
-        return spanId + "." + countNumber;
+        return getCurrentSpanId() + "." + countNumber;
     }
 
     public void setSpanId(String spanId) {
@@ -79,6 +79,10 @@ public class TraceSession {
 
     public String getTraceId() {
         return this.traceRequest.getTraceId();
+    }
+
+    public void restTraceId(String traceId) {
+        this.traceRequest.setTraceId(traceId);
     }
 
     public static String createTraceId() {
@@ -93,5 +97,12 @@ public class TraceSession {
         this.traceNodes = traceNodes;
     }
 
+    public int getCountNumber() {
+        return countNumber;
+    }
+
+    public void setCountNumber(int countNumber) {
+        this.countNumber = countNumber;
+    }
 }
 

@@ -37,7 +37,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
  * @taskId <br>
  * @return : null
  */
-public class RabbitSenderParameterVisitor extends ClassVisitor {
+public class RabbitListenerParameterVisitor extends ClassVisitor {
 
     private final String className;
 
@@ -46,7 +46,7 @@ public class RabbitSenderParameterVisitor extends ClassVisitor {
      */
     public Boolean isMeet = true;
 
-    public RabbitSenderParameterVisitor(int api, ClassVisitor classVisitor, String className) {
+    public RabbitListenerParameterVisitor(int api, ClassVisitor classVisitor, String className) {
         super(api, classVisitor);
         this.className = className;
     }
@@ -73,21 +73,21 @@ public class RabbitSenderParameterVisitor extends ClassVisitor {
             boolean isNativeMethod = (access & ACC_NATIVE) != 0;
             boolean isPublicMethod = (access & ACC_PUBLIC) != 0;
             if (!isAbstractMethod && !isNativeMethod
-                    && "doSend(Lcom/rabbitmq/client/Channel;Ljava/lang/String;Ljava/lang/String;Lorg/springframework/amqp/core/Message;ZLorg/springframework/amqp/rabbit/connection/CorrelationData;)V".equals(name + descriptor)) {
+                    && "onMessage(Lorg/springframework/amqp/core/Message;Lcom/rabbitmq/client/Channel;)V".equals(name + descriptor)) {
                 // 不是构造方法,不是抽象方法,不是原生方法的时候,是public 添加参数打印
-                mv = new RabbitSenderParameterAdapter(api, mv, access, name, descriptor, className);
+                mv = new RabbitListenerParameterAdapter(api, mv, access, name, descriptor, className);
             }
         }
         return mv;
     }
 
-    private static class RabbitSenderParameterAdapter extends MethodVisitor {
+    private static class RabbitListenerParameterAdapter extends MethodVisitor {
         private final int methodAccess;
         private final String methodName;
         private final String methodDesc;
         private final String className;
 
-        public RabbitSenderParameterAdapter(int api, MethodVisitor mv, int methodAccess, String methodName, String methodDesc, String className) {
+        public RabbitListenerParameterAdapter(int api, MethodVisitor mv, int methodAccess, String methodName, String methodDesc, String className) {
             super(api, mv);
             this.methodAccess = methodAccess;
             this.methodName = methodName;
@@ -186,6 +186,9 @@ public class RabbitSenderParameterVisitor extends ClassVisitor {
                     printMessage(className + methodName + methodDesc);
                     printMessage("    abnormal return");
                 }
+
+                // 在这边清除session
+                super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "cleanSession", "()V", false);
             }
 
             // 其次，调用父类的方法实现

@@ -24,6 +24,7 @@ D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\logger\log4j2\Log4j2LoggerAdapter.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\logger\Logger.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\agent\SqlAgent.java
+D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\handel\RabbitListenerParameterVisitor.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\handel\RabbitSenderParameterVisitor.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\logger\LoggerAdapter.java
 D:\idea\workspacegit\itstack-demo-agent\redaggr-agent\src\main\java\com\redaggr\logger\log4j\Log4jLoggerAdapter.java

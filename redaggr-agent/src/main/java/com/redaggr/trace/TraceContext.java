@@ -16,9 +16,10 @@ public class TraceContext {
      * 存入方式为
      * 1. 真实入口级别进行创建session 统一可以认为是没有携带上次session的情况下，进行创建
      * 2. 如果有上次的session信息携带, 如果为空的情况下，依赖上次session进行创建
-     * 3. 想办法清除session TODO
+     * 3. 想办法清除session TODO 办法是在每个确定的入口进行清除
+     * 4. 如果是子线程的话 如何清除 TODO 依靠父线程的remove?
      */
-    public static final ThreadLocal<TraceSession> TRACE_SESSION_THREAD_LOCAL = new ThreadLocal<>();
+    public static final InheritableThreadLocal<TraceSession> TRACE_SESSION_THREAD_LOCAL = new InheritableThreadLocal<>();
 
 
     public TraceContext() {

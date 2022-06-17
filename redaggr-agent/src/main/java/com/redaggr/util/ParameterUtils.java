@@ -1,7 +1,7 @@
 package com.redaggr.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
 import com.redaggr.logger.Logger;
 import com.redaggr.logger.LoggerFactory;
 import com.redaggr.servletAgent.ServletResponseProxy;
@@ -155,8 +155,15 @@ public class ParameterUtils {
             node.setBeginTime(System.currentTimeMillis());
             node.setTraceId(TraceContext.getInstance().getCurrentSession().getTraceId());
             // 如果堆栈中有值的话node的spanId为nextSpanId
-            String currentSpanId = TraceContext.getInstance().getCurrentSession().getTraceNodes().size() > 0 ?
-                    TraceContext.getInstance().getCurrentSession().getNextSpanId() : TraceContext.getInstance().getCurrentSession().getCurrentSpanId();
+            // 如果是异步线程 或者是mq消费的时候 currentSpanId = request.spanId的next 传输的过程中spanId和countNumber都要进行传递
+            String currentSpanId;
+//            if (!"0".equals(TraceContext.getInstance().getCurrentSession().getCurrentSpanId())) {
+                currentSpanId = TraceContext.getInstance().getCurrentSession().getNextSpanId();
+//            } else {
+//                currentSpanId = TraceContext.getInstance().getCurrentSession().getTraceNodes().size() > 0 ?
+//                        TraceContext.getInstance().getCurrentSession().getNextSpanId()
+//                        : TraceContext.getInstance().getCurrentSession().getCurrentSpanId();
+//            }
             node.setSpanId(currentSpanId);
             // session的当前spanId也为这个值
             TraceContext.getInstance().getCurrentSession().setSpanId(currentSpanId);
@@ -233,38 +240,50 @@ public class ParameterUtils {
             // TODO 需要设置attachment至消费者
             node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
+            node.setNodeType("dubbo");
         } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
             // TODO 需要设置attachment至消费者
             org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
             node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
+            node.setNodeType("dubbo");
         } else if (value instanceof java.lang.reflect.Method) {
-
             java.lang.reflect.Method method = (java.lang.reflect.Method) value;
             node.setServiceName(method.getDeclaringClass().getName() + "#" + method.getName());
 //            node.setInParam(); TODO xxl的入参是从xxl工具栏中获取的
-        } else if (value instanceof AMQP.BasicProperties) {
-            AMQP.BasicProperties prop = (AMQP.BasicProperties) value;
-            // 需要设置prop中的head值 带给listener TODO
-            prop = prop.builder()
-                    .contentType(prop.getContentType())
-                    .contentEncoding(prop.getContentEncoding())
-                    .headers(prop.getHeaders())
-                    .deliveryMode(prop.getDeliveryMode())
-                    .priority(prop.getPriority())
-                    .correlationId(node.getSpanId())
-                    .replyTo(prop.getReplyTo())
-                    .expiration(prop.getExpiration())
-                    .messageId(node.getTraceId())
-                    .timestamp(prop.getTimestamp())
-                    .type(prop.getType())
-                    .userId(prop.getUserId())
-                    .appId(prop.getAppId())
-                    .clusterId(prop.getClusterId())
-                    .build();
-            // RabbitMq无service name
-//            node.setServiceName(method.getDeclaringClass().getName() + "#" + method.getName());
-            node.setInParam(JSONObject.toJSONString(prop));
+            node.setNodeType("dubbo");
+        } else if (value instanceof org.springframework.amqp.core.Message) {
+            node.setNodeType("rabbitmq");
+            org.springframework.amqp.core.Message msg = (org.springframework.amqp.core.Message) value;
+            String msgBody = new String(msg.getBody(), StandardCharsets.UTF_8);
+            String traceId = msg.getMessageProperties().getHeader("traceId");
+            String spanId = msg.getMessageProperties().getHeader("spanId");
+            Integer countNumber = msg.getMessageProperties().getHeader("countNumber");
+            if (traceId == null || "".equals(traceId)) {
+                msg.getMessageProperties().setHeader("traceId", node.getTraceId());
+            } else {
+                // 重新设置当前节点的traceId
+                node.setTraceId(traceId);
+                // 重新设置当前session的traceId
+                TraceContext.getInstance().getCurrentSession().restTraceId(traceId);
+            }
+            if (spanId == null || "".equals(spanId)) {
+                msg.getMessageProperties().setHeader("spanId", TraceContext.getInstance().getCurrentSession().getCurrentSpanId());
+                msg.getMessageProperties().setHeader("countNumber", TraceContext.getInstance().getCurrentSession().getCountNumber());
+            } else {
+                // 重新设置当前节点的spanId
+                node.setSpanId(spanId);
+                // 重新设置当前session的spanId
+                TraceContext.getInstance().getCurrentSession().setSpanId(spanId);
+                // 重新设置当前session的countNumber
+                TraceContext.getInstance().getCurrentSession().setCountNumber(countNumber);
+            }
+            node.setInParam(msgBody);
+            node.setInParam(traceId);
+            node.setInParam(JSONObject.toJSONString(msg.getMessageProperties()));
+        } else if (value instanceof Channel) {
+//            Channel channel = (Channel) value;
+//            node.setInParam(JSONObject.toJSONString(channel));
         } else {
             node.setInParam(JSONObject.toJSONString(value));
         }
