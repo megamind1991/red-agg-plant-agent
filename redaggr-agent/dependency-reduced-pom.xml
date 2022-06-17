@@ -18,7 +18,6 @@
               <Project-name>${project.name}</Project-name>
               <Project-version>${project.version}</Project-version>
               <Premain-Class>com.redaggr.agent.Agent</Premain-Class>
-              <Boot-Class-Path>asm-9.0.jar asm-commons-9.0.jar asm-tree-9.0.jar asm-util-9.0.jar</Boot-Class-Path>
               <Can-Redefine-Classes>true</Can-Redefine-Classes>
               <Can-Retransform-Classes>true</Can-Retransform-Classes>
             </manifestEntries>
@@ -44,6 +43,8 @@
               <include>org.ow2.asm:asm-commons</include>
               <include>org.ow2.asm:asm-tree</include>
               <include>org.ow2.asm:asm-util</include>
+              <include>com.alibaba:dubbo</include>
+              <include>org.apache.dubbo:dubbo</include>
             </includes>
           </artifactSet>
         </configuration>
@@ -55,6 +56,30 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>4.0.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+      <version>5.7.3</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.amqp</groupId>
+      <artifactId>spring-amqp</artifactId>
+      <version>2.2.14.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.3</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

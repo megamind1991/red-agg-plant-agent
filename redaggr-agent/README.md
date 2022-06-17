@@ -11,5 +11,6 @@
 6. dubbo参数如何拿 兼容apache和阿里的
 7. void返回的时候 是否应该要处理node stack
 8. rabbitmq 中head是unmodefiyMap 那traceId怎么传递?
+9. 如何做到无侵入性
 
 

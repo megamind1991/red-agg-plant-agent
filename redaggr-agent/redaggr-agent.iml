@@ -17,11 +17,11 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:4.0.1" level="project" />
-    <orderEntry type="library" name="Maven: com.shihang:dubbo:2.6.1-GA" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-context:4.3.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-aop:4.3.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-beans:4.3.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-expression:4.3.10.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.alibaba:dubbo:2.6.2" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context:4.3.16.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-aop:4.3.16.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-beans:4.3.16.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-expression:4.3.16.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.20.0-GA" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.netty:netty:3.2.5.Final" level="project" />
     <orderEntry type="library" name="Maven: org.apache.dubbo:dubbo:2.7.8" level="project" />

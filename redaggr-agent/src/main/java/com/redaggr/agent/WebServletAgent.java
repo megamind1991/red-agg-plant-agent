@@ -28,7 +28,7 @@ public class WebServletAgent {
                     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
                     // (3)串连ClassNode
-                    int api = Opcodes.ASM9;
+                    int api = Opcodes.ASM5;
                     // 方法耗时
 //                    ClassNode cn = new ClassAddTimerNode(api, cw);
                     // 方法入参出参
