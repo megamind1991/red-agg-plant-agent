@@ -11,6 +11,7 @@ import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_NATIVE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ATHROW;
@@ -24,7 +25,6 @@ import static org.objectweb.asm.Opcodes.ICONST_2;
 import static org.objectweb.asm.Opcodes.ICONST_3;
 import static org.objectweb.asm.Opcodes.ICONST_4;
 import static org.objectweb.asm.Opcodes.ICONST_5;
-import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
@@ -125,6 +125,7 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
             super.visitIntInsn(BIPUSH, 20);
             super.visitTypeInsn(ANEWARRAY, "java/lang/Object");
 
+            // 1. 堆栈dup赋值数组 2.堆栈压入index 3. 堆栈压入想要的值 4. aastore消耗堆栈信息
             int arrIndex = 0;
             for (Type t : argumentTypes) {
                 super.visitInsn(DUP); // 复制一个arr
@@ -153,7 +154,39 @@ public class MethodOnceParameterVisitor extends ClassVisitor {
                         super.visitIntInsn(BIPUSH, arrIndex);
                         break;
                 }
+
+                // 需要加入arr中的值加入堆栈
                 super.visitVarInsn(opcode, slotIndex);
+
+                // 检查如果是基本类型的就调用转化为包装对象
+                switch (t.getSort()) {
+                    case Type.BOOLEAN:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(Z)Ljava/lang/String;", false);
+                        break;
+                    case Type.CHAR:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(C)Ljava/lang/String;", false);
+                        break;
+                    case Type.INT:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(I)Ljava/lang/String;", false);
+                        break;
+                    case Type.FLOAT:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(F)Ljava/lang/String;", false);
+                        break;
+                    case Type.LONG:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(J)Ljava/lang/String;", false);
+                        break;
+                    case Type.DOUBLE:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(D)Ljava/lang/String;", false);
+                        break;
+                    case Type.SHORT:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+                        break;
+                    case Type.BYTE:
+                        super.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+                        break;
+                    default:
+                        break;
+                }
                 super.visitInsn(AASTORE); // 消耗堆栈上的数据存储
                 slotIndex += size;
                 arrIndex++;

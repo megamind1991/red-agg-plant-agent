@@ -30,6 +30,10 @@ public class TraceContext {
     }
 
     public TraceSession createSession() {
+        if ("main".equals(Thread.currentThread().getName())) {
+            // 如果是main线程不创建session , 直接抛出异常 因为main线程如果有session所有的子线程将出现问题
+            throw new RuntimeException("main线程不创建trace会话");
+        }
         TraceRequest traceRequest = new TraceRequest();
         traceRequest.setTraceId(TraceSession.createTraceId());
         TraceSession traceSession = new TraceSession(this, traceRequest);

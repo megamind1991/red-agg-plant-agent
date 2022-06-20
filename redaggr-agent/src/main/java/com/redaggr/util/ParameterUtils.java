@@ -260,9 +260,8 @@ public class ParameterUtils {
                 TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
             }
 
-            node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
+            node.setServiceName(request.getAttachments().get("path") + "." + request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
-            node.setInParam(JSONObject.toJSONString(request.getAttachments()));
             node.setNodeType("dubbo");
         } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
             org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
@@ -288,15 +287,14 @@ public class ParameterUtils {
                 // 重新设置当前session的countNumber
                 TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
             }
-            node.setServiceName(request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
+            node.setServiceName(request.getAttachments().get("path") + "." + request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
             node.setInParam(JSONObject.toJSONString(request.getArguments()));
-            node.setInParam(JSONObject.toJSONString(request.getAttachments()));
             node.setNodeType("dubbo");
         } else if (value instanceof java.lang.reflect.Method) {
             java.lang.reflect.Method method = (java.lang.reflect.Method) value;
             node.setServiceName(method.getDeclaringClass().getName() + "#" + method.getName());
 //            node.setInParam(); TODO xxl的入参是从xxl工具栏中获取的
-            node.setNodeType("dubbo");
+            node.setNodeType("xxlJob");
         } else if (value instanceof org.springframework.amqp.core.Message) {
             node.setNodeType("rabbitmq");
             org.springframework.amqp.core.Message msg = (org.springframework.amqp.core.Message) value;
@@ -327,8 +325,11 @@ public class ParameterUtils {
             node.setInParam(traceId);
             node.setInParam(JSONObject.toJSONString(msg.getMessageProperties()));
         } else if (value instanceof Channel) {
-//            Channel channel = (Channel) value;
-//            node.setInParam(JSONObject.toJSONString(channel));
+            // 不打印
+        } else if (value instanceof com.alibaba.dubbo.rpc.Invoker) {
+            // 不打印
+        } else if (value instanceof org.apache.dubbo.rpc.Invoker) {
+            // 不打印
         } else {
             node.setInParam(JSONObject.toJSONString(value));
         }

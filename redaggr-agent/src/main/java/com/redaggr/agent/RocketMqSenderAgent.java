@@ -1,7 +1,8 @@
 package com.redaggr.agent;
 
 import com.redaggr.handel.RabbitSenderParameterVisitor;
-import com.redaggr.util.FileUtils;
+import com.redaggr.logger.Logger;
+import com.redaggr.logger.LoggerFactory;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -10,6 +11,9 @@ import org.objectweb.asm.Opcodes;
 import java.lang.instrument.Instrumentation;
 
 public class RocketMqSenderAgent {
+
+    private static final Logger logger = LoggerFactory.getLogger(RocketMqSenderAgent.class);
+
     public static void premain(String args, Instrumentation instrumentation) {
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // com.rabbitmq.client.impl.ChannelN
@@ -18,7 +22,7 @@ public class RocketMqSenderAgent {
             // org.springframework.amqp.rabbit.core.RabbitTemplate
             // doSend
             if ("org.springframework.amqp.rabbit.core.RabbitTemplate".replaceAll("\\.", "/").equals(className)) {
-                System.out.println("匹配到" + className);
+                logger.info("匹配到" + className);
                 byte[] bytes2 = null;
                 try {
                     // (1)构建ClassReader
@@ -39,12 +43,12 @@ public class RocketMqSenderAgent {
                     // (5) 生成byte[]
                     bytes2 = cw.toByteArray();
 
-                    System.out.println(className + "写入文件");
-                    // (6) 写入文件用于检查
-                    FileUtils.writeBytes("D:\\idea\\workspacegit\\itstack-demo-agent\\redaggr-agent\\target\\classes\\com\\redaggr\\delete\\S.class", bytes2);
+//                    logger.info(className + "写入文件");
+//                    // (6) 写入文件用于检查
+//                    FileUtils.writeBytes("D:\\idea\\workspacegit\\itstack-demo-agent\\redaggr-agent\\target\\classes\\com\\redaggr\\delete\\S.class", bytes2);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("异常" + e.getMessage());
+                    logger.info("异常" + e.getMessage());
                 }
                 return bytes2;
             }

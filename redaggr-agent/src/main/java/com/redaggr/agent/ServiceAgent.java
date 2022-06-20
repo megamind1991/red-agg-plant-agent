@@ -1,6 +1,9 @@
 package com.redaggr.agent;
 
 import com.redaggr.handel.MethodOnceParameterVisitor;
+import com.redaggr.logger.Logger;
+import com.redaggr.logger.LoggerFactory;
+import com.redaggr.util.FileUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -10,13 +13,15 @@ import java.util.regex.Pattern;
 
 public class ServiceAgent {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
 
     public static void premain(String args, Instrumentation instrumentation) {
+        logger.info("匹配service规则" + args);
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // 监听符合规则的service类
             // .*shihang|shlf.*Service.* TODO 通过入参确定
-            if (Pattern.matches(".*(shihang|shlf).*promotions.*ServiceImpl", className.replace("/", "."))) {
-                System.out.println("匹配到" + className);
+            if (Pattern.matches(args == null ? ".*(shihang|shlf).*promotions.*ServiceImpl" : args, className.replace("/", "."))) {
+                logger.info("匹配到" + className);
                 byte[] bytes2 = null;
 
                 try {
@@ -38,19 +43,21 @@ public class ServiceAgent {
                     // accept之后才是链路完成，所以cn的值要在accept之后再判断
                     if (!cn.isMeet) {
                         // 检查不符合的情况下直接返回
-                        System.out.println(className + "检查不符合的情况下直接返回");
+                        logger.info(className + "检查不符合的情况下直接返回");
                         return null;
                     }
 
                     // (5) 生成byte[]
                     bytes2 = cw.toByteArray();
 
-//                    System.out.println(className + "写入文件");
-//                    // (6) 写入文件用于检查
-//                    FileUtils.writeBytes("D:\\idea\\workspacegit\\itstack-demo-agent\\redaggr-agent\\target\\classes\\com\\redaggr\\delete\\S.class", bytes2);
+                    if (className.contains("UserServiceImpl")) {
+                        logger.info(className + "写入文件");
+                        // (6) 写入文件用于检查
+                        FileUtils.writeBytes("D:\\idea\\workspacegit\\itstack-demo-agent\\redaggr-agent\\target\\classes\\com\\redaggr\\delete\\S.class", bytes2);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("异常" + e.getMessage());
+                    logger.info("异常" + e.getMessage());
                 }
                 return bytes2;
             }

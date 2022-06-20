@@ -12,5 +12,10 @@
 7. void返回的时候 是否应该要处理node stack
 8. rabbitmq 中head是unmodefiyMap 那traceId怎么传递?
 9. 如何做到无侵入性
-
+10. 异常的情况下怎么记录的
+11. 监控的serviceImpl中存在符合预期的埋点，但是此埋点是main主线程
+    ,且此埋点会被main线程提前执行,导致main线程内保存了一份ThreadLocal，
+    在这种场景下比如spring的afterPropertiesSet等就导致问题
+    ，main线程创建的所有子线程都将继承此session出现问题,因为使用了(InheritableThreadLocal)
+12. 因为打印入参是Object... 如果是入参是基本类型的时候怎么办
 

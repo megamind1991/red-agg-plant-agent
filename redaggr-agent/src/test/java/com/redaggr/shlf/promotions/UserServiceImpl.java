@@ -19,8 +19,9 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    public boolean userHasGift(String customerGuid) {
-        return "".equals(customerGuid);
+    public int userHasGift(String customerGuid, int a) {
+        Integer cc = (Integer) a;
+        return 2;
     }
 
 
