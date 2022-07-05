@@ -8,6 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>redaggr-agent</artifactId>
   <build>
+    <finalName>redaggr-agent-apache-dubbo</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
@@ -43,8 +44,6 @@
               <include>org.ow2.asm:asm-commons</include>
               <include>org.ow2.asm:asm-tree</include>
               <include>org.ow2.asm:asm-util</include>
-              <include>com.alibaba:dubbo</include>
-              <include>org.apache.dubbo:dubbo</include>
             </includes>
           </artifactSet>
         </configuration>
@@ -56,6 +55,18 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>4.0.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>dubbo</artifactId>
+      <version>2.6.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.dubbo</groupId>
+      <artifactId>dubbo</artifactId>
+      <version>2.7.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

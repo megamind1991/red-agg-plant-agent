@@ -37,7 +37,7 @@ public class ServiceAgent {
                     MethodOnceParameterVisitor cn = new MethodOnceParameterVisitor(api, cw, className);
 
                     //（4）结合ClassReader和ClassNode
-                    int parsingOptions = ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
+                    int parsingOptions = 0;
                     cr.accept(cn, parsingOptions);
 
                     // accept之后才是链路完成，所以cn的值要在accept之后再判断

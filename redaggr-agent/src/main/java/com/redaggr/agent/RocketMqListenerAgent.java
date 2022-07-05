@@ -35,7 +35,7 @@ public class RocketMqListenerAgent {
                     ClassVisitor cn = new RabbitListenerParameterVisitor(api, cw, className);
 
                     //（4）结合ClassReader和ClassNode
-                    int parsingOptions = ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
+                    int parsingOptions = 0;
                     cr.accept(cn, parsingOptions);
 
                     // (5) 生成byte[]

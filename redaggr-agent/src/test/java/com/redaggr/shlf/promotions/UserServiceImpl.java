@@ -24,5 +24,12 @@ public class UserServiceImpl implements UserService {
         return 2;
     }
 
+    public void test() {
+        Integer intObj = 5566;
+        int i = intObj;
+
+        Double doubleObj = 55.66;
+        double d = doubleObj;
+    }
 
 }
