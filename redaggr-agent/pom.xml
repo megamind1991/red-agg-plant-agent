@@ -73,20 +73,26 @@
             <version>${asm.version}</version>
         </dependency>
 
+        <!-- slf4j -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.3</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.logging.log4j</groupId>-->
+<!--            <artifactId>log4j-core</artifactId>-->
+<!--            <version>2.3</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>log4j</groupId>-->
+<!--            <artifactId>log4j</artifactId>-->
+<!--            <version>1.2.17</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
-        <finalName>redaggr-agent-apache-dubbo</finalName>
+        <finalName>redaggr-agent-alibaba-dubbo</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -129,7 +135,7 @@
                             <include>org.ow2.asm:asm-tree</include>
                             <include>org.ow2.asm:asm-util</include>
 <!--                            <include>com.alibaba:dubbo</include>-->
-<!--                            <include>org.apache.dubbo:dubbo</include>-->
+                            <include>org.apache.dubbo:dubbo</include>
                         </includes>
                     </artifactSet>
                 </configuration>
