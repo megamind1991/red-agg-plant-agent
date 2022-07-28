@@ -92,7 +92,7 @@
     </dependencies>
 
     <build>
-        <finalName>redaggr-agent-alibaba-dubbo</finalName>
+        <finalName>redaggr-agent</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -116,30 +116,30 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <artifactSet>
-                        <includes>
-                            <include>org.ow2.asm:asm</include>
-                            <include>org.ow2.asm:asm-analysis</include>
-                            <include>org.ow2.asm:asm-commons</include>
-                            <include>org.ow2.asm:asm-tree</include>
-                            <include>org.ow2.asm:asm-util</include>
-<!--                            <include>com.alibaba:dubbo</include>-->
-                            <include>org.apache.dubbo:dubbo</include>
-                        </includes>
-                    </artifactSet>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <artifactId>maven-shade-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>shade</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <artifactSet>-->
+<!--                        <includes>-->
+<!--&lt;!&ndash;                            <include>org.ow2.asm:asm</include>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <include>org.ow2.asm:asm-analysis</include>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <include>org.ow2.asm:asm-commons</include>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <include>org.ow2.asm:asm-tree</include>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <include>org.ow2.asm:asm-util</include>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <include>com.alibaba:dubbo</include>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <include>org.apache.dubbo:dubbo</include>&ndash;&gt;-->
+<!--                        </includes>-->
+<!--                    </artifactSet>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

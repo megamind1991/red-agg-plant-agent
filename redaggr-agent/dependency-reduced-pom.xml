@@ -38,50 +38,13 @@
         </executions>
         <configuration>
           <artifactSet>
-            <includes>
-              <include>org.ow2.asm:asm</include>
-              <include>org.ow2.asm:asm-analysis</include>
-              <include>org.ow2.asm:asm-commons</include>
-              <include>org.ow2.asm:asm-tree</include>
-              <include>org.ow2.asm:asm-util</include>
-              <include>org.apache.dubbo:dubbo</include>
-            </includes>
+            <includes />
           </artifactSet>
         </configuration>
       </plugin>
     </plugins>
   </build>
   <dependencies>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>dubbo</artifactId>
-      <version>2.6.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.rabbitmq</groupId>
-      <artifactId>amqp-client</artifactId>
-      <version>5.7.3</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.amqp</groupId>
-      <artifactId>spring-amqp</artifactId>
-      <version>2.2.14.RELEASE</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -93,12 +56,6 @@
           <groupId>org.hamcrest</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
-      <version>1.2.40</version>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
   <properties>

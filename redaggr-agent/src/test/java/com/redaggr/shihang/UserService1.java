@@ -3,12 +3,9 @@ package com.redaggr.shihang;/**
  */
 
 
-import com.redaggr.User;
-
 /**
  * @author Tommy
  * Created by Tommy on 2018/5/31
  **/
-public interface UserService extends UserService1 {
-    User getUser(String userid, String name);
+public interface UserService1 {
 }

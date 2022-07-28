@@ -1,5 +1,8 @@
 package com.redaggr.trace;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author : 0006841 油面筋
  * @Description : trace 单例上下文<br>
@@ -8,6 +11,7 @@ package com.redaggr.trace;
  */
 public class TraceContext {
 
+    private static final Logger logger = LoggerFactory.getLogger(TraceContext.class);
 
     private static final TraceContext traceContext = new TraceContext();
 

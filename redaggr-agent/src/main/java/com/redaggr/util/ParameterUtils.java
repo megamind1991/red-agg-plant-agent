@@ -16,13 +16,16 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -109,26 +112,26 @@ public class ParameterUtils {
         printValueOnStack4Return("" + value);
     }
 
-    public static void setDubboUrl(Object value) {
-        // TODO 在这边把dubbo中attachement中带入traceRequest 在生产者那边可以使用
-        try {
-            TraceSession currentSession = TraceContext.getInstance().getCurrentSession();
-            if (currentSession.getTraceNodes().size() <= 0) {
-                return;
-            }
-            TraceNode currentNode = currentSession.getTraceNodes().peek();
-            currentNode.setNodeType("dubbo");
-            if (value instanceof com.alibaba.dubbo.common.URL) {
-                com.alibaba.dubbo.common.URL url = (com.alibaba.dubbo.common.URL) value;
-                currentNode.setServicePath(url.getServiceKey());
-            } else if (value instanceof org.apache.dubbo.common.URL) {
-                org.apache.dubbo.common.URL url = (org.apache.dubbo.common.URL) value;
-                currentNode.setServicePath(url.getServiceKey());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void setDubboUrl(Object value) {
+//        // TODO 在这边把dubbo中attachement中带入traceRequest 在生产者那边可以使用
+//        try {
+//            TraceSession currentSession = TraceContext.getInstance().getCurrentSession();
+//            if (currentSession.getTraceNodes().size() <= 0) {
+//                return;
+//            }
+//            TraceNode currentNode = currentSession.getTraceNodes().peek();
+//            currentNode.setNodeType("dubbo");
+//            if (value instanceof com.alibaba.dubbo.common.URL) {
+//                com.alibaba.dubbo.common.URL url = (com.alibaba.dubbo.common.URL) value;
+//                currentNode.setServicePath(url.getServiceKey());
+//            } else if (value instanceof org.apache.dubbo.common.URL) {
+//                org.apache.dubbo.common.URL url = (org.apache.dubbo.common.URL) value;
+//                currentNode.setServicePath(url.getServiceKey());
+//            }
+//        } catch (Exception e) {
+//            logger.warn(e.getMessage());
+//        }
+//    }
 
     public static void printValueOnStack4Return(Object value) {
         try {
@@ -143,7 +146,7 @@ public class ParameterUtils {
             TraceNode traceNode = printValueOnStackOutParamV2(value, node);
             logger.info(traceNode == null ? null : traceNode.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage());
         }
     }
 
@@ -157,13 +160,7 @@ public class ParameterUtils {
             // 如果堆栈中有值的话node的spanId为nextSpanId
             // 如果是异步线程 或者是mq消费的时候 currentSpanId = request.spanId的next 传输的过程中spanId和countNumber都要进行传递
             String currentSpanId;
-//            if (!"0".equals(TraceContext.getInstance().getCurrentSession().getCurrentSpanId())) {
-                currentSpanId = TraceContext.getInstance().getCurrentSession().getNextSpanId();
-//            } else {
-//                currentSpanId = TraceContext.getInstance().getCurrentSession().getTraceNodes().size() > 0 ?
-//                        TraceContext.getInstance().getCurrentSession().getNextSpanId()
-//                        : TraceContext.getInstance().getCurrentSession().getCurrentSpanId();
-//            }
+            currentSpanId = TraceContext.getInstance().getCurrentSession().getNextSpanId();
             node.setSpanId(currentSpanId);
             // session的当前spanId也为这个值
             TraceContext.getInstance().getCurrentSession().setSpanId(currentSpanId);
@@ -180,7 +177,7 @@ public class ParameterUtils {
             // 输出入参
 //            logger.info(node.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage());
         }
     }
 
@@ -203,7 +200,7 @@ public class ParameterUtils {
             // 输出入参
             logger.info(node.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage());
         }
     }
 
@@ -235,62 +232,108 @@ public class ParameterUtils {
             // 后缀匹配资源文件不打印请求信息
             ServletResponseProxy response = (ServletResponseProxy) value;
             node.setInParam(getResponseValue(null, response));
-        } else if (value instanceof com.alibaba.dubbo.rpc.RpcInvocation) {
-            com.alibaba.dubbo.rpc.RpcInvocation request = (com.alibaba.dubbo.rpc.RpcInvocation) value;
-            String traceId = request.getAttachment("traceId");
-            String spanId = request.getAttachment("spanId");
-            String countNumber = request.getAttachment("countNumber");
-            if (traceId == null || "".equals(traceId)) {
-                request.setAttachment("traceId", node.getTraceId());
-            } else {
-                // 重新设置当前节点的traceId
-                node.setTraceId(traceId);
-                // 重新设置当前session的traceId
-                TraceContext.getInstance().getCurrentSession().restTraceId(traceId);
-            }
-            if (spanId == null || "".equals(spanId)) {
-                request.setAttachment("spanId", TraceContext.getInstance().getCurrentSession().getCurrentSpanId());
-                request.setAttachment("countNumber", String.valueOf(TraceContext.getInstance().getCurrentSession().getCountNumber()));
-            } else {
-                // 重新设置当前节点的spanId
-                node.setSpanId(spanId);
-                // 重新设置当前session的spanId
-                TraceContext.getInstance().getCurrentSession().setSpanId(spanId);
-                // 重新设置当前session的countNumber
-                TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
-            }
+        } else if (isInstanceof(value, "com.alibaba.dubbo.rpc.RpcInvocation")
+                || isInstanceof(value, "org.apache.dubbo.rpc.RpcInvocation")) {
+            try {
+                Method getAttachment = value.getClass().getMethod("getAttachment", String.class);
+                Method setAttachment = value.getClass().getMethod("setAttachment", String.class, String.class);
+                Method getMethodName = value.getClass().getMethod("getMethodName");
+                Method getParameterTypes = value.getClass().getMethod("getParameterTypes");
+                Method getArguments = value.getClass().getMethod("getArguments");
 
-            node.setServiceName(request.getAttachments().get("path") + "." + request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
-            node.setInParam(JSONObject.toJSONString(request.getArguments()));
-            node.setNodeType("dubbo");
-        } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
-            org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
-            String traceId = request.getAttachment("traceId");
-            String spanId = request.getAttachment("spanId");
-            String countNumber = request.getAttachment("countNumber");
-            if (traceId == null || "".equals(traceId)) {
-                request.setAttachment("traceId", node.getTraceId());
-            } else {
-                // 重新设置当前节点的traceId
-                node.setTraceId(traceId);
-                // 重新设置当前session的traceId
-                TraceContext.getInstance().getCurrentSession().restTraceId(traceId);
+                String traceId = (String) getAttachment.invoke(value, "traceId");
+                String spanId = (String) getAttachment.invoke(value, "spanId");
+                String countNumber = (String) getAttachment.invoke(value, "countNumber");
+                String path = (String) getAttachment.invoke(value, "path");
+                String methodName = (String) getMethodName.invoke(value);
+
+                String parameterTypes = JSONObject.toJSONString(getParameterTypes.invoke(value));
+                String arguments = JSONObject.toJSONString(getArguments.invoke(value));
+
+                if (traceId == null || "".equals(traceId)) {
+                    setAttachment.invoke(value, "traceId", node.getTraceId());
+                } else {
+                    // 重新设置当前节点的traceId
+                    node.setTraceId(traceId);
+                    // 重新设置当前session的traceId
+                    TraceContext.getInstance().getCurrentSession().restTraceId(traceId);
+                }
+                if (spanId == null || "".equals(spanId)) {
+                    setAttachment.invoke(value, "spanId", TraceContext.getInstance().getCurrentSession().getCurrentSpanId());
+                    setAttachment.invoke(value, "countNumber", String.valueOf(TraceContext.getInstance().getCurrentSession().getCountNumber()));
+                } else {
+                    // 重新设置当前节点的spanId
+                    node.setSpanId(spanId);
+                    // 重新设置当前session的spanId
+                    TraceContext.getInstance().getCurrentSession().setSpanId(spanId);
+                    // 重新设置当前session的countNumber
+                    TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
+                }
+
+                node.setServiceName(path + "." + methodName + "#" + parameterTypes);
+                node.setInParam(arguments);
+                node.setNodeType("dubbo");
+            } catch (Exception e) {
+                logger.warn(e.getMessage());
             }
-            if (spanId == null || "".equals(spanId)) {
-                request.setAttachment("spanId", TraceContext.getInstance().getCurrentSession().getCurrentSpanId());
-                request.setAttachment("countNumber", String.valueOf(TraceContext.getInstance().getCurrentSession().getCountNumber()));
-            } else {
-                // 重新设置当前节点的spanId
-                node.setSpanId(spanId);
-                // 重新设置当前session的spanId
-                TraceContext.getInstance().getCurrentSession().setSpanId(spanId);
-                // 重新设置当前session的countNumber
-                TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
-            }
-            node.setServiceName(request.getAttachments().get("path") + "." + request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
-            node.setInParam(JSONObject.toJSONString(request.getArguments()));
-            node.setNodeType("dubbo");
-        } else if (value instanceof java.lang.reflect.Method) {
+        }
+//        else if (value instanceof com.alibaba.dubbo.rpc.RpcInvocation) {
+//            com.alibaba.dubbo.rpc.RpcInvocation request = (com.alibaba.dubbo.rpc.RpcInvocation) value;
+//            String traceId = request.getAttachment("traceId");
+//            String spanId = request.getAttachment("spanId");
+//            String countNumber = request.getAttachment("countNumber");
+//            if (traceId == null || "".equals(traceId)) {
+//                request.setAttachment("traceId", node.getTraceId());
+//            } else {
+//                // 重新设置当前节点的traceId
+//                node.setTraceId(traceId);
+//                // 重新设置当前session的traceId
+//                TraceContext.getInstance().getCurrentSession().restTraceId(traceId);
+//            }
+//            if (spanId == null || "".equals(spanId)) {
+//                request.setAttachment("spanId", TraceContext.getInstance().getCurrentSession().getCurrentSpanId());
+//                request.setAttachment("countNumber", String.valueOf(TraceContext.getInstance().getCurrentSession().getCountNumber()));
+//            } else {
+//                // 重新设置当前节点的spanId
+//                node.setSpanId(spanId);
+//                // 重新设置当前session的spanId
+//                TraceContext.getInstance().getCurrentSession().setSpanId(spanId);
+//                // 重新设置当前session的countNumber
+//                TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
+//            }
+//
+//            node.setServiceName(request.getAttachments().get("path") + "." + request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
+//            node.setInParam(JSONObject.toJSONString(request.getArguments()));
+//            node.setNodeType("dubbo");
+//        } else if (value instanceof org.apache.dubbo.rpc.RpcInvocation) {
+//            org.apache.dubbo.rpc.RpcInvocation request = (org.apache.dubbo.rpc.RpcInvocation) value;
+//            String traceId = request.getAttachment("traceId");
+//            String spanId = request.getAttachment("spanId");
+//            String countNumber = request.getAttachment("countNumber");
+//            if (traceId == null || "".equals(traceId)) {
+//                request.setAttachment("traceId", node.getTraceId());
+//            } else {
+//                // 重新设置当前节点的traceId
+//                node.setTraceId(traceId);
+//                // 重新设置当前session的traceId
+//                TraceContext.getInstance().getCurrentSession().restTraceId(traceId);
+//            }
+//            if (spanId == null || "".equals(spanId)) {
+//                request.setAttachment("spanId", TraceContext.getInstance().getCurrentSession().getCurrentSpanId());
+//                request.setAttachment("countNumber", String.valueOf(TraceContext.getInstance().getCurrentSession().getCountNumber()));
+//            } else {
+//                // 重新设置当前节点的spanId
+//                node.setSpanId(spanId);
+//                // 重新设置当前session的spanId
+//                TraceContext.getInstance().getCurrentSession().setSpanId(spanId);
+//                // 重新设置当前session的countNumber
+//                TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
+//            }
+//            node.setServiceName(request.getAttachments().get("path") + "." + request.getMethodName() + "#" + JSONObject.toJSONString(request.getParameterTypes()));
+//            node.setInParam(JSONObject.toJSONString(request.getArguments()));
+//            node.setNodeType("dubbo");
+//        }
+        else if (value instanceof java.lang.reflect.Method) {
             java.lang.reflect.Method method = (java.lang.reflect.Method) value;
             node.setServiceName(method.getDeclaringClass().getName() + "#" + method.getName());
 //            node.setInParam(); TODO xxl的入参是从xxl工具栏中获取的
@@ -326,11 +369,16 @@ public class ParameterUtils {
             node.setInParam(JSONObject.toJSONString(msg.getMessageProperties()));
         } else if (value instanceof Channel) {
             // 不打印
-        } else if (value instanceof com.alibaba.dubbo.rpc.Invoker) {
+        } else if (isInstanceof(value, "com.alibaba.dubbo.rpc.Invoker")
+                || isInstanceof(value, "org.apache.dubbo.rpc.Invoker")) {
             // 不打印
-        } else if (value instanceof org.apache.dubbo.rpc.Invoker) {
-            // 不打印
-        } else {
+        }
+//        else if (value instanceof com.alibaba.dubbo.rpc.Invoker) {
+//            // 不打印
+//        } else if (value instanceof org.apache.dubbo.rpc.Invoker) {
+//            // 不打印
+//        }
+        else {
             node.setInParam(JSONObject.toJSONString(value));
         }
     }
@@ -362,17 +410,27 @@ public class ParameterUtils {
             // 后缀匹配资源文件不打印请求信息
             ServletResponseProxy response = (ServletResponseProxy) value;
             node.setOutParam(getResponseValue(null, response));
-        } else if (value instanceof org.apache.dubbo.rpc.Result) {
-            // web servlet 出参打印
-            // 后缀匹配资源文件不打印请求信息
-            org.apache.dubbo.rpc.Result response = (org.apache.dubbo.rpc.Result) value;
-            node.setOutParam(JSONObject.toJSONString(response.getValue()));
-        } else if (value instanceof com.alibaba.dubbo.rpc.Result) {
-            // web servlet 出参打印
-            // 后缀匹配资源文件不打印请求信息
-            com.alibaba.dubbo.rpc.Result response = (com.alibaba.dubbo.rpc.Result) value;
-            node.setOutParam(JSONObject.toJSONString(response.getValue()));
-        } else {
+        } else if (isInstanceof(value, "org.apache.dubbo.rpc.Result") ||
+                isInstanceof(value, "com.alibaba.dubbo.rpc.Result")) {
+            try {
+                Method getValue = value.getClass().getMethod("getValue");
+                node.setOutParam(JSONObject.toJSONString(getValue.invoke(value)));
+            } catch (Exception e) {
+                logger.warn(e.getMessage());
+            }
+        }
+//        else if (value instanceof org.apache.dubbo.rpc.Result) {
+//            // web servlet 出参打印
+//            // 后缀匹配资源文件不打印请求信息
+//            org.apache.dubbo.rpc.Result response = (org.apache.dubbo.rpc.Result) value;
+//            node.setOutParam(JSONObject.toJSONString(response.getValue()));
+//        } else if (value instanceof com.alibaba.dubbo.rpc.Result) {
+//            // web servlet 出参打印
+//            // 后缀匹配资源文件不打印请求信息
+//            com.alibaba.dubbo.rpc.Result response = (com.alibaba.dubbo.rpc.Result) value;
+//            node.setOutParam(JSONObject.toJSONString(response.getValue()));
+//        }
+        else {
             node.setOutParam(JSONObject.toJSONString(value));
         }
 
@@ -423,7 +481,7 @@ public class ParameterUtils {
         try {
             TraceContext.TRACE_SESSION_THREAD_LOCAL.remove();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage());
         }
     }
 
@@ -434,7 +492,7 @@ public class ParameterUtils {
                 currentSession.getTraceNodes().peek().setServiceName(str);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage());
         }
     }
 
@@ -503,5 +561,22 @@ public class ParameterUtils {
         }
         return result;
 
+    }
+
+    static boolean isInstanceof(Object o, String className) {
+        ArrayList<String> classNames = new ArrayList<>();
+        getSuperClassAndInterface(classNames, o.getClass());
+        return classNames.contains(className);
+    }
+
+    static void getSuperClassAndInterface(List<String> classNames, Class c) {
+        if (c.getSuperclass() == null) {
+            return;
+        }
+        classNames.add(c.getSuperclass().getName());
+        for (Class<?> i : c.getInterfaces()) {
+            classNames.add(i.getName());
+        }
+        getSuperClassAndInterface(classNames, c.getSuperclass());
     }
 }
