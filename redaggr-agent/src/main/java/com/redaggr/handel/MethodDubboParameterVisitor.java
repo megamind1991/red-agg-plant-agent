@@ -113,7 +113,7 @@ public class MethodDubboParameterVisitor extends ClassVisitor {
             super.visitMethodInsn(INVOKESTATIC, "com/redaggr/util/ParameterUtils", "printValueOnStackInParamByArr", "([Ljava/lang/Object;)V", false);
 
             // 执行完入参后再调用额外信息 这边顺序要注意
-//            printDubboSpecialInfo(methodDesc);
+            printDubboSpecialInfo(methodDesc);
 
             // 其次，调用父类的方法实现
             super.visitCode();

@@ -9,18 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class ServiceAgent {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
 
-    public static void premain(String args, Instrumentation instrumentation) {
+    public static void premain(HashMap<String, String> args, Instrumentation instrumentation) {
         logger.info("匹配service规则" + args);
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // 监听符合规则的service类
-            // .*shihang|shlf.*Service.* TODO 通过入参确定
-            if (Pattern.matches(args == null ? ".*(shihang|shlf).*promotions.*ServiceImpl" : args, className.replace("/", "."))) {
+            if (Pattern.matches(args.get("serviceMatch") == null ? ".*(shihang|shlf).*promotions.*ServiceImpl" : args.get("serviceMatch"), className.replace("/", "."))) {
                 logger.info("匹配到" + className);
                 byte[] bytes2 = null;
 

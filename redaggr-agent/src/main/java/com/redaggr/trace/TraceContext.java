@@ -15,6 +15,7 @@ public class TraceContext {
 
     private static final TraceContext traceContext = new TraceContext();
 
+
     /**
      * 存放当前请求线程的trace会话
      * 存入方式为

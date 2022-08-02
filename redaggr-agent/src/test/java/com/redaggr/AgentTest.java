@@ -1,12 +1,5 @@
 package com.redaggr;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.remoting.exchange.Request;
-import com.alibaba.dubbo.remoting.transport.ChannelDelegate;
-import com.alibaba.dubbo.rpc.protocol.dubbo.DecodeableRpcInvocation;
-import com.alibaba.dubbo.rpc.support.MockInvoker;
-
-import java.io.PipedInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,12 +12,15 @@ public class AgentTest {
 //        new PromotionsActivityServiceImpl();
 //        Thread.sleep(5000);
 //        System.out.println("end");
-        DecodeableRpcInvocation decodeableRpcInvocation = new DecodeableRpcInvocation(new ChannelDelegate(), new Request(), new PipedInputStream(), (byte) 1);
-        MockInvoker mockInvoker = new MockInvoker(new URL("", "", 1));
+//        DecodeableRpcInvocation decodeableRpcInvocation = new DecodeableRpcInvocation(new ChannelDelegate(), new Request(), new PipedInputStream(), (byte) 1);
+//        MockInvoker mockInvoker = new MockInvoker(new URL("", "", 1));
 //        System.out.println(ParameterUtils.isInstanceof(decodeableRpcInvocation, "com.alibaba.dubbo.rpc.RpcInvocation"));
 //        System.out.println(ParameterUtils.isInstanceof(new MockInvoker(new URL("", "", 1)), "com.alibaba.dubbo.rpc.Invoker"));
 
-        System.out.println(isInstanceof(mockInvoker, "com.alibaba.dubbo.rpc.Invoker"));
+//        System.out.println(isInstanceof(mockInvoker, "com.alibaba.dubbo.rpc.Invoker"));
+
+        System.out.println(System.getProperty("java.class.path"));
+
     }
 
     static boolean isInstanceof(Object o, String className) {

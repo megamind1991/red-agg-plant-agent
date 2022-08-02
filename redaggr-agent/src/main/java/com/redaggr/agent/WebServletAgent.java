@@ -11,11 +11,12 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.util.HashMap;
 
 public class WebServletAgent {
     private static final Logger logger = LoggerFactory.getLogger(WebServletAgent.class);
 
-    public static void premain(String args, Instrumentation instrumentation) throws FileNotFoundException, UnmodifiableClassException {
+    public static void premain(HashMap<String, String> args, Instrumentation instrumentation) throws FileNotFoundException, UnmodifiableClassException {
         // 注意类加载器
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // javax.servlet.http.HttpServlet

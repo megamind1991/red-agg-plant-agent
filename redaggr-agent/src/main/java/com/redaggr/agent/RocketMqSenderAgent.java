@@ -9,12 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
+import java.util.HashMap;
 
 public class RocketMqSenderAgent {
 
     private static final Logger logger = LoggerFactory.getLogger(RocketMqSenderAgent.class);
 
-    public static void premain(String args, Instrumentation instrumentation) {
+    public static void premain(HashMap<String, String> args, Instrumentation instrumentation) {
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // com.rabbitmq.client.impl.ChannelN
             // basicPublish(java.lang.String, java.lang.String, boolean, boolean, com.rabbitmq.client.AMQP.BasicProperties, byte[])

@@ -9,12 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
+import java.util.HashMap;
 
 public class DubboProviderAgent {
 
     private static final Logger logger = LoggerFactory.getLogger(DubboConsumerAgent.class);
 
-    public static void premain(String args, Instrumentation instrumentation) {
+    public static void premain(HashMap<String, String> args, Instrumentation instrumentation) {
 
         instrumentation.addTransformer((loader, className, classBeingRedefined, protectionDomain, classfileBuffer) -> {
             // org.apache.dubbo.rpc.filter.ClassLoaderFilter

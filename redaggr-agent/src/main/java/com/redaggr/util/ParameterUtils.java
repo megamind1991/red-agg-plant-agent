@@ -112,26 +112,26 @@ public class ParameterUtils {
         printValueOnStack4Return("" + value);
     }
 
-//    public static void setDubboUrl(Object value) {
-//        // TODO 在这边把dubbo中attachement中带入traceRequest 在生产者那边可以使用
-//        try {
-//            TraceSession currentSession = TraceContext.getInstance().getCurrentSession();
-//            if (currentSession.getTraceNodes().size() <= 0) {
-//                return;
-//            }
-//            TraceNode currentNode = currentSession.getTraceNodes().peek();
-//            currentNode.setNodeType("dubbo");
-//            if (value instanceof com.alibaba.dubbo.common.URL) {
-//                com.alibaba.dubbo.common.URL url = (com.alibaba.dubbo.common.URL) value;
-//                currentNode.setServicePath(url.getServiceKey());
-//            } else if (value instanceof org.apache.dubbo.common.URL) {
-//                org.apache.dubbo.common.URL url = (org.apache.dubbo.common.URL) value;
-//                currentNode.setServicePath(url.getServiceKey());
-//            }
-//        } catch (Exception e) {
-//            logger.warn(e.getMessage());
-//        }
-//    }
+    public static void setDubboUrl(Object value) {
+        // TODO 在这边把dubbo中attachement中带入traceRequest 在生产者那边可以使用
+        try {
+            TraceSession currentSession = TraceContext.getInstance().getCurrentSession();
+            if (currentSession.getTraceNodes().size() <= 0) {
+                return;
+            }
+            TraceNode currentNode = currentSession.getTraceNodes().peek();
+            currentNode.setNodeType("dubbo");
+            if (isInstanceof(value, "com.alibaba.dubbo.common.URL")) {
+                Method getServiceKey = value.getClass().getMethod("getServiceKey");
+                currentNode.setServicePath((String) getServiceKey.invoke(value));
+            } else if (isInstanceof(value, "org.apache.dubbo.common.URL")) {
+                Method getServiceKey = value.getClass().getMethod("getServiceKey");
+                currentNode.setServicePath((String) getServiceKey.invoke(value));
+            }
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+        }
+    }
 
     public static void printValueOnStack4Return(Object value) {
         try {
@@ -269,8 +269,7 @@ public class ParameterUtils {
                     // 重新设置当前session的countNumber
                     TraceContext.getInstance().getCurrentSession().setCountNumber(Integer.parseInt(countNumber));
                 }
-
-                node.setServiceName(path + "." + methodName + "#" + parameterTypes);
+                node.setServiceName(methodName + "#" + parameterTypes);
                 node.setInParam(arguments);
                 node.setNodeType("dubbo");
             } catch (Exception e) {
@@ -415,6 +414,7 @@ public class ParameterUtils {
             try {
                 Method getValue = value.getClass().getMethod("getValue");
                 node.setOutParam(JSONObject.toJSONString(getValue.invoke(value)));
+                node.setNodeType("dubbo");
             } catch (Exception e) {
                 logger.warn(e.getMessage());
             }
@@ -564,6 +564,9 @@ public class ParameterUtils {
     }
 
     static boolean isInstanceof(Object o, String className) {
+        if (o.getClass().getName().equals(className)) {
+            return true;
+        }
         ArrayList<String> classNames = new ArrayList<>();
         getSuperClassAndInterface(classNames, o.getClass());
         return classNames.contains(className);
